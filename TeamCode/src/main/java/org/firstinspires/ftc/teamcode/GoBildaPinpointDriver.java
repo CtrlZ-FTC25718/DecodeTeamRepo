@@ -1,4 +1,4 @@
-/*   MIT License
+package org.firstinspires.ftc.teamcode;/*   MIT License
  *   Copyright (c) [2025] [Base 10 Assets, LLC]
  *
  *   Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -338,7 +338,7 @@ public class GoBildaPinpointDriver extends I2cDeviceSynchDevice<I2cDeviceSynchSi
      * Call this once per loop to read new data from the Odometry Computer. This is an override of the update() function
      * which allows a narrower range of data to be read from the device for faster read times. Currently ONLY_UPDATE_HEADING
      * is supported.
-     * @param data GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING
+     * @param data org.firstinspires.ftc.teamcode.GoBildaPinpointDriver.ReadData.ONLY_UPDATE_HEADING
      */
     public void update(ReadData data) {
         if (data == ReadData.ONLY_UPDATE_HEADING) {

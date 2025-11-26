@@ -20,6 +20,7 @@ import org.firstinspires.ftc.teamcode.MappedActuators;
 */
 
 import java.util.function.Supplier;
+
 @Configurable
 @TeleOp(name = "Decode Robot Centric Tele0p")
 public class DecodeRCTeleop extends OpMode {
@@ -31,6 +32,10 @@ private Follower follower;
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.2;
     public MappedActuators robotActuators;
+
+    private boolean ballDetected = false;
+    private boolean prevBallDetected = false;
+    private int intakeBallCount = 0;
 
 
     /** This method is call once when init is played, it initializes the follower **/
@@ -93,6 +98,26 @@ private Follower follower;
                     true // Robot Centric
             );
         }
+
+
+        ballDetected = robotActuators.detectBall();
+        if (!prevBallDetected && ballDetected && intakeBallCount == 0) {
+            robotActuators.sorterGoToState(1,1);
+            intakeBallCount = 1;
+        }
+        else if (!prevBallDetected && ballDetected && intakeBallCount == 1) {
+            robotActuators.sorterGoToState(2,1);
+            intakeBallCount = 2;
+        }
+        else if (!prevBallDetected && ballDetected && intakeBallCount == 2) {
+            robotActuators.sorterGoToState(3,1);
+            intakeBallCount = 3;
+        }
+        else if (!prevBallDetected && ballDetected && intakeBallCount == 3) {
+            robotActuators.sorterGoToState(4,1);
+        }
+        prevBallDetected = ballDetected;
+
         //Automated PathFollowing
         if (gamepad1.aWasPressed()) {
             follower.followPath(pathChain.get());
@@ -143,12 +168,12 @@ private Follower follower;
 
         if(gamepad2.dpadRightWasPressed()){
             // Sort once Forward
-            robotActuators.sortArtifactForward();
+            robotActuators.sorterGoToState(robotActuators.getSorterState(),1);
         }
 
         if(gamepad2.dpadLeftWasPressed()){
             // Sort once Backward
-            robotActuators.sortArtifactBackward();
+            robotActuators.sorterGoToState(robotActuators.getSorterState(), -1);
         }
         if ((gamepad2.dpadUpWasPressed()) || (gamepad2.dpadDownWasPressed())) {
             // Stop intake
@@ -170,9 +195,18 @@ private Follower follower;
 
         /* Telemetry Outputs of our Follower */
 
-        telemetryM.debug("position", follower.getPose());
-        telemetryM.debug("velocity", follower.getVelocity());
-        telemetryM.debug("automatedDrive", automatedDrive);
+//        telemetryM.debug("position", follower.getPose());
+//        telemetryM.debug("velocity", follower.getVelocity());
+//        telemetryM.debug("automatedDrive", automatedDrive);
+//        telemetryM.debug("ballDetected",ballDetected);
+
+        telemetry.addData("ballDetected", ballDetected);
+        telemetry.addData("PrevBallDetected", prevBallDetected);
+        telemetry.addData("R: ",robotActuators.getSorterBottomColorSensorRValue());
+        telemetry.addData("G: ",robotActuators.getSorterBottomColorSensorGValue());
+        telemetry.addData("B: ",robotActuators.getSorterBottomColorSensorBValue());
+        telemetry.addData("sorterState", robotActuators.getSorterState());
+        telemetry.addData("intakeBallCount", intakeBallCount);
 
 //        telemetry.addData("X", follower.getPose().getX());
 //        telemetry.addData("Y", follower.getPose().getY());

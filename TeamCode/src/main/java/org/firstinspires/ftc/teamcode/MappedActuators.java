@@ -1,9 +1,12 @@
 package org.firstinspires.ftc.teamcode;
 
+import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
+
+import kotlinx.coroutines.Delay;
 
 public class MappedActuators {
 
@@ -16,6 +19,7 @@ public class MappedActuators {
     private static final String doorServo_Name = "door";
     private static final String shooterBlock_Name = "shooterBlocker";
     private static final String shooterBackMotor_Name = "shooterBackMotor";
+    private static final String sorterBottomColorSensor_Name = "sorterBottomColorSensor";
     private HardwareMap map;
     private Servo sorterServo;
     private DcMotor intake;
@@ -23,8 +27,15 @@ public class MappedActuators {
     private DcMotor shooterBack;
     private Servo door;
     private Servo shooterBlocker;
+    private ColorSensor sorterBottomColorSensor;
 
     private int sorterState = 0; // Sorter State
+    private int [] sorterBottomColorSensorRGB = {0,0,0};
+
+    private double sorterPos1 = 0.08;
+    private double sorterPos2 = 0.15;
+    private double sorterPos3 = 0.22;
+    private double sorterPos4 = 0.3;
 
     public MappedActuators(HardwareMap hardwareMap){
         map = hardwareMap;
@@ -35,6 +46,7 @@ public class MappedActuators {
         shooterBack = map.get(DcMotor.class, shooterBackMotor_Name);
         door = map.get(Servo.class,doorServo_Name);
         shooterBlocker = map.get(Servo.class,shooterBlock_Name);
+        sorterBottomColorSensor = map.get(ColorSensor.class, sorterBottomColorSensor_Name);
 
         // set intake properties
         intake.setDirection(DcMotor.Direction.REVERSE);
@@ -56,6 +68,7 @@ public class MappedActuators {
         // set shooterBlocker properties
         shooterBlocker.setDirection(Servo.Direction.FORWARD);
         sorterServo.setPosition(0);
+
     }
 
     public void spinIntake(String direction){
@@ -88,40 +101,20 @@ public class MappedActuators {
             shooterBack.setPower(0);
         }
     }
-
-    public void sortArtifactForward() {
-        if (sorterState == 0) {
-            sorterServo.setPosition(0.08);
-            sorterState++;
-        } else if (sorterState == 1) {
-            sorterServo.setPosition(0.15);
-            sorterState++;
-        } else if (sorterState == 2) {
-            sorterServo.setPosition(0.22);
-            sorterState++;
-        } else if (sorterState == 3) {
-            sorterServo.setPosition(0.3);
-            sorterState++;
-        }
-          else {
-            // do nothing until we are sure that reverse doesn't jam the artifacts
-        }
+    
+    public int getSorterState(){
+        return sorterState;
     }
 
+    public void sorterGoToState(int state, int direction){
+        if (state == 0) { resetSorter();}
+        if (state == 1) { sorterServo.setPosition((sorterPos1));}
+        if (state == 2) { sorterServo.setPosition((sorterPos2));}
+        if (state == 3) { sorterServo.setPosition((sorterPos3));}
+        if (state == 4) { sorterServo.setPosition((sorterPos4));}
 
-    public void sortArtifactBackward() {
-        if (sorterState == 1) {
-            // Do nothing until we know reversing doesn't jam the artifacts
-        } else if (sorterState == 2) {
-            sorterServo.setPosition(0.08);
-            sorterState--;
-        } else if (sorterState == 3) {
-            sorterServo.setPosition(0.15);
-            sorterState--;
-        } else if (sorterState == 4) {
-            sorterServo.setPosition(0.22);
-            sorterState--;
-        }
+        if (direction == 1) { sorterState++;}
+        else if (direction == -1) { sorterState--;}
     }
     public void resetSorter() {
         sorterServo.setPosition(0.02);
@@ -142,6 +135,30 @@ public class MappedActuators {
 
     public void unblockShooter() {
         shooterBlocker.setPosition(0.08);
+    }
+
+    public int getSorterBottomColorSensorRValue(){
+        return sorterBottomColorSensorRGB[0];
+    }
+    public int getSorterBottomColorSensorGValue(){
+        return sorterBottomColorSensorRGB[1];
+    }
+    public int getSorterBottomColorSensorBValue(){
+        return sorterBottomColorSensorRGB[2];
+    }
+    public void readsorterBottomColorSensorRGB() {
+        sorterBottomColorSensorRGB[0] = sorterBottomColorSensor.red();
+        sorterBottomColorSensorRGB[1] = sorterBottomColorSensor.green();
+        sorterBottomColorSensorRGB[2] = sorterBottomColorSensor.blue();
+    }
+
+    public boolean detectBall(){
+        boolean ballDetected = false;
+        readsorterBottomColorSensorRGB();
+        if (sorterBottomColorSensorRGB[0] > 80 || sorterBottomColorSensorRGB[1] > 80 || sorterBottomColorSensorRGB[2] > 80){
+            ballDetected = true;
+        }
+        return ballDetected;
     }
 
 }

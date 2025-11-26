@@ -13,7 +13,6 @@ import com.qualcomm.robotcore.eventloop.opmode.OpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
-import org.firstinspires.ftc.teamcode.MappedActuators;
 /*
  * Team CTRL+Z # 25718
  * @version 2.0, 12/30/2024

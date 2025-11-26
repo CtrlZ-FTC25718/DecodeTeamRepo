@@ -108,10 +108,10 @@ public class MappedActuators {
 
     public void sorterGoToState(int state, int direction){
         if (state == 0) { resetSorter();}
-        if (state == 1) { sorterServo.setPosition((sorterPos1));}
-        if (state == 2) { sorterServo.setPosition((sorterPos2));}
-        if (state == 3) { sorterServo.setPosition((sorterPos3));}
-        if (state == 4) { sorterServo.setPosition((sorterPos4));}
+        else if (state == 1) { sorterServo.setPosition((sorterPos1));}
+        else if (state == 2) { sorterServo.setPosition((sorterPos2));}
+        else if (state == 3) { sorterServo.setPosition((sorterPos3));}
+        else if (state == 4) { sorterServo.setPosition((sorterPos4));}
 
         if (direction == 1) { sorterState++;}
         else if (direction == -1) { sorterState--;}

@@ -29,12 +29,13 @@ private Follower follower;
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
     private boolean slowMode = false;
-    private double slowModeMultiplier = 0.2;
+    private double slowModeMultiplier = 0.4;
     public MappedActuators robotActuators;
 
     private boolean ballDetected = false;
     private boolean prevBallDetected = false;
     private int intakeBallCount = 0;
+    private double RGBColor = 0;
 
 
     /** This method is call once when init is played, it initializes the follower **/
@@ -50,6 +51,9 @@ private Follower follower;
                 .build();
         robotActuators = new MappedActuators(hardwareMap);
         robotActuators.resetSorter(); // Reset Sorter position and state
+        robotActuators.blockShooter();
+        robotActuators.closeDoor();
+        robotActuators.setRGBIndicatorTo(0.67);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
@@ -98,22 +102,26 @@ private Follower follower;
             );
         }
 
-
+        robotActuators.setRGBIndicatorTo(RGBColor);
         ballDetected = robotActuators.detectBall();
         if (!prevBallDetected && ballDetected && intakeBallCount == 0) {
-            robotActuators.sorterGoToState(1,1);
+            robotActuators.sorterGoToState(1);
             intakeBallCount = 1;
+            RGBColor = 0.277;
         }
         else if (!prevBallDetected && ballDetected && intakeBallCount == 1) {
-            robotActuators.sorterGoToState(2,1);
+            robotActuators.sorterGoToState(2);
             intakeBallCount = 2;
+            RGBColor = 0.5;
         }
         else if (!prevBallDetected && ballDetected && intakeBallCount == 2) {
-            robotActuators.sorterGoToState(3,1);
+            robotActuators.sorterGoToState(3);
             intakeBallCount = 3;
+            RGBColor = 0.555;
         }
-        else if (!prevBallDetected && ballDetected && intakeBallCount == 3) {
-            robotActuators.sorterGoToState(4,1);
+        else if(intakeBallCount == 3){
+            // robotActuators.spinIntake("stop");
+            robotActuators.spinShooter("start");
         }
         prevBallDetected = ballDetected;
 
@@ -133,11 +141,11 @@ private Follower follower;
         }
         //Optional way to change slow mode strength
         if (gamepad1.xWasPressed()) {
-            slowModeMultiplier += 0.25;
+            robotActuators.shootBall();
         }
         //Optional way to change slow mode strength
         if (gamepad1.yWasPressed()) {
-            slowModeMultiplier -= 0.25;
+            robotActuators.shootBall();
         }
 
         // Intake - Intake action
@@ -155,11 +163,16 @@ private Follower follower;
             robotActuators.spinIntake("stop");
         }
 
-        if(gamepad2.yWasPressed()){
+        if(gamepad2.yWasPressed()) {
             // Start shooter
             robotActuators.spinShooter("start");
+            if (robotActuators.getDoorState() == false) {
+                robotActuators.unblockShooter();
+            }
+            else if (robotActuators.getDoorState() == true) {
+                robotActuators.blockShooter();
+            }
         }
-
         if(gamepad2.aWasPressed()){
             // Stop shooter
             robotActuators.spinShooter("stop");
@@ -167,12 +180,12 @@ private Follower follower;
 
         if(gamepad2.dpadRightWasPressed()){
             // Sort once Forward
-            robotActuators.sorterGoToState(robotActuators.getSorterState(),1);
+            robotActuators.sorterGoToState(robotActuators.getSorterState()+1);
         }
 
         if(gamepad2.dpadLeftWasPressed()){
             // Sort once Backward
-            robotActuators.sorterGoToState(robotActuators.getSorterState(), -1);
+            robotActuators.sorterGoToState(robotActuators.getSorterState()+1);
         }
         if ((gamepad2.dpadUpWasPressed()) || (gamepad2.dpadDownWasPressed())) {
             // Stop intake
@@ -180,17 +193,18 @@ private Follower follower;
         }
 
         if (gamepad2.rightBumperWasPressed()){
-            robotActuators.doorOpen();
+            robotActuators.closeDoor();
         }
         if (gamepad2.leftBumperWasPressed()){
-            robotActuators.doorClosed();
+            robotActuators.openDoor();
         }
         if (gamepad2.xWasPressed()){
             robotActuators.unblockShooter();
         }
-        if (gamepad2.bWasPressed()){
+        if (gamepad2.xWasReleased()){
             robotActuators.blockShooter();
         }
+
 
         /* Telemetry Outputs of our Follower */
 
@@ -206,6 +220,8 @@ private Follower follower;
         telemetry.addData("B: ",robotActuators.getSorterBottomColorSensorBValue());
         telemetry.addData("sorterState", robotActuators.getSorterState());
         telemetry.addData("intakeBallCount", intakeBallCount);
+        telemetry.addData("doorServoPosition", robotActuators.door.getPosition());
+        telemetry.addData("shooterBlockerPosition", robotActuators.getShooterBlockerPosition());
 
 //        telemetry.addData("X", follower.getPose().getX());
 //        telemetry.addData("Y", follower.getPose().getY());

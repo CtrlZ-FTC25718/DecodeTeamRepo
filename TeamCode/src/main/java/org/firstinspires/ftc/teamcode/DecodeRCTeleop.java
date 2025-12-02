@@ -24,7 +24,7 @@ import java.util.function.Supplier;
 @TeleOp(name = "Decode Robot Centric Tele0p")
 public class DecodeRCTeleop extends OpMode {
 private Follower follower;
-    public Pose startingPose  = new Pose(0,0,0);; //See ExampleAuto to understand how to use this
+    public Pose startingPose  = new Pose(0,0, Math.toRadians(90));; //See ExampleAuto to understand how to use this
     private boolean automatedDrive;
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
@@ -34,9 +34,7 @@ private Follower follower;
 
     private boolean ballDetected = false;
     private boolean prevBallDetected = false;
-    private int intakeBallCount = 0;
     private double RGBColor = 0;
-
 
     /** This method is call once when init is played, it initializes the follower **/
     @Override
@@ -102,26 +100,29 @@ private Follower follower;
             );
         }
 
-        robotActuators.setRGBIndicatorTo(RGBColor);
+        //robotActuators.setRGBIndicatorByIntakeBallCount();
         ballDetected = robotActuators.detectBall();
-        if (!prevBallDetected && ballDetected && intakeBallCount == 0) {
-            robotActuators.sorterGoToState(1);
-            intakeBallCount = 1;
-            RGBColor = 0.277;
+        if (!prevBallDetected && ballDetected && robotActuators.getIntakeBallCount() == 0) {
+            robotActuators.sorterGoToState(1, false);
+            robotActuators.incrementIntakeBallCount(); // set to 1
+            //RGBColor = 0.25;
+            //robotActuators.setRGBIndicatorTo(RGBColor);
         }
-        else if (!prevBallDetected && ballDetected && intakeBallCount == 1) {
-            robotActuators.sorterGoToState(2);
-            intakeBallCount = 2;
-            RGBColor = 0.5;
+        else if (!prevBallDetected && ballDetected && robotActuators.getIntakeBallCount() == 1) {
+            robotActuators.sorterGoToState(2, false);
+            robotActuators.incrementIntakeBallCount(); // set to 2
+            //RGBColor = 0.5;
+            //robotActuators.setRGBIndicatorTo(RGBColor);
         }
-        else if (!prevBallDetected && ballDetected && intakeBallCount == 2) {
-            robotActuators.sorterGoToState(3);
-            intakeBallCount = 3;
-            RGBColor = 0.555;
+        else if (!prevBallDetected && ballDetected && robotActuators.getIntakeBallCount() == 2) {
+            robotActuators.sorterGoToState(3, false);
+            robotActuators.incrementIntakeBallCount(); // set to 3
+            //RGBColor = 0.555;
+            //robotActuators.setRGBIndicatorTo(RGBColor);
         }
-        else if(intakeBallCount == 3){
-            // robotActuators.spinIntake("stop");
-            robotActuators.spinShooter("start");
+        else if(robotActuators.getIntakeBallCount() == 3){
+            robotActuators.spinIntake("stop");
+            robotActuators.spinShooter("start", "high");
         }
         prevBallDetected = ballDetected;
 
@@ -139,13 +140,13 @@ private Follower follower;
         if (gamepad1.rightBumperWasPressed()) {
             slowMode = !slowMode;
         }
-        //Optional way to change slow mode strength
+        //shoot at highPower
         if (gamepad1.xWasPressed()) {
-            robotActuators.shootBall();
+            robotActuators.shootBall("high");
         }
-        //Optional way to change slow mode strength
+        //shoot at lowPower
         if (gamepad1.yWasPressed()) {
-            robotActuators.shootBall();
+            robotActuators.shootBall("low");
         }
 
         // Intake - Intake action
@@ -165,27 +166,27 @@ private Follower follower;
 
         if(gamepad2.yWasPressed()) {
             // Start shooter
-            robotActuators.spinShooter("start");
-            if (robotActuators.getDoorState() == false) {
+            robotActuators.spinShooter("start", "high");
+            if (!robotActuators.getDoorState()) {
                 robotActuators.unblockShooter();
             }
-            else if (robotActuators.getDoorState() == true) {
+            else {
                 robotActuators.blockShooter();
             }
         }
         if(gamepad2.aWasPressed()){
             // Stop shooter
-            robotActuators.spinShooter("stop");
+            robotActuators.spinShooter("stop", "low");
         }
 
         if(gamepad2.dpadRightWasPressed()){
             // Sort once Forward
-            robotActuators.sorterGoToState(robotActuators.getSorterState()+1);
+            robotActuators.sorterGoToState(robotActuators.getSorterState()+1, false);
         }
 
         if(gamepad2.dpadLeftWasPressed()){
             // Sort once Backward
-            robotActuators.sorterGoToState(robotActuators.getSorterState()+1);
+            robotActuators.sorterGoToState(robotActuators.getSorterState()+1, false);
         }
         if ((gamepad2.dpadUpWasPressed()) || (gamepad2.dpadDownWasPressed())) {
             // Stop intake
@@ -212,20 +213,22 @@ private Follower follower;
 //        telemetryM.debug("velocity", follower.getVelocity());
 //        telemetryM.debug("automatedDrive", automatedDrive);
 //        telemetryM.debug("ballDetected",ballDetected);
-
+//        telemetry.addData("Position", follower.getPose());
         telemetry.addData("ballDetected", ballDetected);
         telemetry.addData("PrevBallDetected", prevBallDetected);
+        telemetry.addData("intakeBallCount", robotActuators.getIntakeBallCount());
+
         telemetry.addData("R: ",robotActuators.getSorterBottomColorSensorRValue());
         telemetry.addData("G: ",robotActuators.getSorterBottomColorSensorGValue());
         telemetry.addData("B: ",robotActuators.getSorterBottomColorSensorBValue());
         telemetry.addData("sorterState", robotActuators.getSorterState());
-        telemetry.addData("intakeBallCount", intakeBallCount);
+
         telemetry.addData("doorServoPosition", robotActuators.door.getPosition());
         telemetry.addData("shooterBlockerPosition", robotActuators.getShooterBlockerPosition());
 
-//        telemetry.addData("X", follower.getPose().getX());
-//        telemetry.addData("Y", follower.getPose().getY());
-//        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("X", follower.getPose().getX());
+        telemetry.addData("Y", follower.getPose().getY());
+        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 
         /* Update Telemetry to the Driver Hub */
 //        telemetry.update();

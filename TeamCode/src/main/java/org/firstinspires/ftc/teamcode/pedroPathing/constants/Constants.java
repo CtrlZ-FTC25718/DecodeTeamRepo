@@ -50,14 +50,17 @@ public class Constants {
             .useBrakeModeInTeleOp(true)
             .useVoltageCompensation(true);
 
+
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(2.0)
-            .strafePodX(21.5)
+            .forwardPodY(4.0) // was 2
+            .strafePodX(25.4) // was 21.5
+//            .forwardPodY(0.0787)
+//            .strafePodX(0.84645)
             .distanceUnit(DistanceUnit.MM)
             .hardwareMapName("pinpoint")
             .yawScalar(1.0)
             .encoderResolution(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.GoBildaOdometryPods.goBILDA_4_BAR_POD)
-            .customEncoderResolution(13.26291192)
+            //.customEncoderResolution(13.26291192)
             .forwardEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.FORWARD)
             .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.REVERSED);
 

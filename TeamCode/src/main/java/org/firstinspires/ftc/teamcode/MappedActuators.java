@@ -8,6 +8,8 @@ import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
+
 import kotlinx.coroutines.Delay;
 
 public class MappedActuators {
@@ -32,10 +34,10 @@ public class MappedActuators {
     private ElapsedTime runtime;
 
     private int sorterState = 0; // Sorter State
-    private int [] sorterBottomColorSensorRGB = {0,0,0};
+    private int[] sorterBottomColorSensorRGB = {0, 0, 0};
 
     private double sorterPos1 = 0.085;
-    private double sorterPos2 = 0.155;
+    private double sorterPos2 = 0.150;
     private double sorterPos3 = 0.225;
     private double sorterPos4 = 0.295;
     private double sorterPos5 = 0.365;
@@ -45,18 +47,24 @@ public class MappedActuators {
     private boolean doorOpen = false;
     private double shooterOpenPos = 0.0;
     private double shooterClosePos = 0.3;
+    private double shooterHighPower = 1.0;
+    private double shooterLowPower = 0.85;
+
+    private double doorOpenPos = 0.3;
+    private double doorClosedPos = 0.8;
+    private int intakeBallCount = 0;
 
 
-    public MappedActuators(HardwareMap hardwareMap){
+    public MappedActuators(HardwareMap hardwareMap) {
         map = hardwareMap;
         sorterServo = map.get(Servo.class, sorterServo_Name);
         intake = map.get(DcMotor.class, intakeMotor_Name);
         shooterFront = map.get(DcMotor.class, shooterFrontMotor_Name);
         shooterBack = map.get(DcMotor.class, shooterBackMotor_Name);
-        door = map.get(Servo.class,doorServo_Name);
-        shooterBlocker = map.get(Servo.class,shooterBlocker_Name);
+        door = map.get(Servo.class, doorServo_Name);
+        shooterBlocker = map.get(Servo.class, shooterBlocker_Name);
         sorterBottomColorSensor = map.get(ColorSensor.class, sorterBottomColorSensor_Name);
-        rgbIndicator = map.get(Servo.class,rgbIndicator_Name);
+        rgbIndicator = map.get(Servo.class, rgbIndicator_Name);
 
         // set intake properties
         intake.setDirection(DcMotor.Direction.REVERSE);
@@ -90,81 +98,129 @@ public class MappedActuators {
 
     }
 
-    public void spinIntake(String direction){
+    public void decrementIntakeBallCount(){intakeBallCount--;}
+    public void incrementIntakeBallCount() {intakeBallCount++;}
+    public void resetIntakeBallCount(){intakeBallCount = 0;}
+    public int getIntakeBallCount(){ return intakeBallCount;}
+
+    public void spinIntake(String direction) {
         // Spin intake based upon direction
-        if (direction.equals("intake")){
+        if (direction.equals("intake")) {
             //Intake
             intake.setDirection(DcMotor.Direction.REVERSE);
             intake.setPower(1);
-        }
-        else if (direction.equals("reject")){
+        } else if (direction.equals("reject")) {
             // Reject
             intake.setDirection(DcMotorSimple.Direction.FORWARD);
             intake.setPower(1);
-        }
-        else if (direction.equals("stop")){
+        } else if (direction.equals("stop")) {
             // Stop spinning
             intake.setPower(0);
         }
     }
 
-    public void spinShooter(String action){
+    public void spinShooter(String action, String powerLevel) {
         // Start or stop the shooter
-        if (action.equals("start")){
-            shooterFront.setPower(0.85);
-            shooterBack.setPower(0.85);
+        if (action.equals("start")) {
+            if (powerLevel.equals("high")) {
+                shooterFront.setPower(shooterHighPower);
+                shooterBack.setPower(shooterHighPower);
+            }
+            else { // "low"
+                shooterFront.setPower(shooterLowPower);
+                shooterBack.setPower(shooterLowPower);
+            }
         }
 
-        if (action.equals("stop")){
+        if (action.equals("stop")) { // power level doesn't matter
             shooterFront.setPower(0);
             shooterBack.setPower(0);
         }
     }
-    
-    public int getSorterState(){
+
+    public int getSorterState() {
         return sorterState;
     }
-    public void setSorterState(int state){
+
+    public void setSorterState(int state) {
         sorterState = state;
     }
+
     public void resetSorter() {
 
         sorterServo.setPosition(0.02);
         sorterState = 0;
-    }
-    public void sorterGoToState(int state){
-        if (state == 0) { resetSorter();}
-        else if (state == 1) { sorterServo.setPosition((sorterPos1));setSorterState(1);}
-        else if (state == 2) { sorterServo.setPosition((sorterPos2));setSorterState(2);}
-        else if (state == 3) { sorterServo.setPosition((sorterPos3));setSorterState(3);}
-        else if (state == 4) { sorterServo.setPosition((sorterPos4));setSorterState(4);}
-        else if (state == 5) { sorterServo.setPosition((sorterPos5));setSorterState(5);}
-        else if (state == 6) { sorterServo.setPosition((sorterPos6));setSorterState(6);}
-        else if (state == 7) { sorterServo.setPosition((sorterPos6));setSorterState(7);}
+        resetIntakeBallCount();
     }
 
-    public boolean getDoorState () {
+    public void sorterGoToState(int state, boolean wiggle) {
+        int wiggleCount = 200, count = 0;
+        double wigglePos = 0.0, wiggleMag = 0.0025;
+
+        if (state == 0) {
+            resetSorter();
+        } else if (state == 1) {
+            sorterServo.setPosition((sorterPos1));
+            setSorterState(1);
+        } else if (state == 2) {
+            sorterServo.setPosition((sorterPos2));
+            setSorterState(2);
+        } else if (state == 3) {
+            sorterServo.setPosition((sorterPos3));
+            setSorterState(3);
+        } else if (state == 4) {
+            sorterServo.setPosition((sorterPos4));
+            setSorterState(4);
+        } else if (state == 5) {
+            sorterServo.setPosition((sorterPos5));
+            setSorterState(5);
+        } else if (state == 6) {
+            sorterServo.setPosition((sorterPos6));
+            setSorterState(6);
+        } else if (state == 7) {
+            sorterServo.setPosition((sorterPos6));
+            setSorterState(7);
+        }
+
+        if (wiggle) {
+            wigglePos = sorterServo.getPosition();
+            while (count < wiggleCount) {
+                sorterServo.setPosition((wigglePos - wiggleMag));
+                sorterServo.setPosition((wigglePos + wiggleMag));
+                count++;
+            }
+            sorterServo.setPosition(wigglePos);
+        }
+
+    }
+
+    public boolean getDoorState() {
         return doorOpen;
     }
-    public void setDoorState (boolean state) {
+
+    public void setDoorState(boolean state) {
         doorOpen = state;
     }
+
     public void openDoor() {
-        door.setPosition(0.35);
+        door.setPosition(doorOpenPos);
         setDoorState(true);
 
     }
 
     public void closeDoor() {
-        door.setPosition(0.75);
+        door.setPosition(doorClosedPos);
         setDoorState(false);
     }
+
     public double getShooterBlockerPosition() {
         return shooterBlocker.getPosition();
     }
+
     public void setShooterBlockerPosition(double position) {
         shooterBlocker.setPosition(position);
     }
+
     public void blockShooter() {
         setShooterBlockerPosition(shooterClosePos);
 
@@ -174,60 +230,54 @@ public class MappedActuators {
         setShooterBlockerPosition(shooterOpenPos);
     }
 
-    public int getSorterBottomColorSensorRValue(){
+    public int getSorterBottomColorSensorRValue() {
         return sorterBottomColorSensorRGB[0];
     }
-    public int getSorterBottomColorSensorGValue(){
+
+    public int getSorterBottomColorSensorGValue() {
         return sorterBottomColorSensorRGB[1];
     }
-    public int getSorterBottomColorSensorBValue(){
+
+    public int getSorterBottomColorSensorBValue() {
         return sorterBottomColorSensorRGB[2];
     }
+
     public void readsorterBottomColorSensorRGB() {
         sorterBottomColorSensorRGB[0] = sorterBottomColorSensor.red();
         sorterBottomColorSensorRGB[1] = sorterBottomColorSensor.green();
         sorterBottomColorSensorRGB[2] = sorterBottomColorSensor.blue();
     }
 
-    public boolean detectBall(){
+    public boolean detectBall() {
         boolean ballDetected = false;
         readsorterBottomColorSensorRGB();
-        if (sorterBottomColorSensorRGB[0] > 100 || sorterBottomColorSensorRGB[1] > 100 || sorterBottomColorSensorRGB[2] > 100){
+        if (sorterBottomColorSensorRGB[0] > 100 || sorterBottomColorSensorRGB[1] > 100 || sorterBottomColorSensorRGB[2] > 100) {
             ballDetected = true;
         }
         return ballDetected;
     }
 
-    public void setRGBIndicatorTo(double color){
+    public void setRGBIndicatorTo(double color) {
         rgbIndicator.setPosition(color);
     }
 
-    public void blinkRGBIndicator(double color){
-        int count = 0;
-        int blinkCount = 2;
-        double rgbTime  = 0.0;
-        setRGBIndicatorTo(color);
-        while (count < blinkCount) {
-            rgbTime = runtime.milliseconds();
-            while (runtime.milliseconds() <= (rgbTime + 500));
-            setRGBIndicatorTo(0.0);
-            rgbTime = runtime.milliseconds();
-            while (runtime.milliseconds() <= (rgbTime + 500));
-            count++;
-        }
+    public void shootBall(String powerLevel) {
+        spinShooter("start", powerLevel);
 
-
-    }
-    public void shootBall(){
-        spinShooter("start");
-        openDoor();
-        unblockShooter();
-        sorterGoToState(getSorterState()+1);
-        if (getSorterState() == 7) {
-            spinShooter("stop");
-            closeDoor();
-            resetSorter();
-            spinIntake("start");
+        while (intakeBallCount > 0) {
+            openDoor();
+            unblockShooter();
+            sorterGoToState(getSorterState() + 1, true);
+            decrementIntakeBallCount();
         }
+        // Shoot one extra (to handle the case with just 2 balls in the sorter
+        sorterGoToState(getSorterState() + 1, true);
+
+        // sorter is guaranteed to be empty, so reset
+        spinShooter("stop", powerLevel);
+        closeDoor();
+        resetSorter();
+        blockShooter();
+        //spinIntake("intake");
     }
 }

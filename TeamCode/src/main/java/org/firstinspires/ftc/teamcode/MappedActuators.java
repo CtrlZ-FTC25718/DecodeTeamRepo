@@ -37,22 +37,24 @@ public class MappedActuators {
     private int[] sorterBottomColorSensorRGB = {0, 0, 0};
     private double intakeServoPosOffset= 0.1;
     private double sorterPos0 = 0.00 + intakeServoPosOffset;
-    private double sorterPos1 = 0.085 + intakeServoPosOffset;
-    private double sorterPos2 = 0.150 + intakeServoPosOffset;
+    private double sorterPos1 = 0.075 + intakeServoPosOffset;
+    private double sorterPos2 = 0.145 + intakeServoPosOffset;
     private double sorterPos3 = 0.225 + intakeServoPosOffset;
-    private double sorterPos4 = 0.295 + intakeServoPosOffset;
-    private double sorterPos5 = 0.365 + intakeServoPosOffset;
-    private double sorterPos6 = 0.440 + intakeServoPosOffset;
+    private double sorterPos4 = 0.29 + intakeServoPosOffset;
+    private double sorterPos5 = 0.36 + intakeServoPosOffset;
+    private double sorterPos6 = 0.435 + intakeServoPosOffset;
 
     private double sorterPos7 = 0.51 + intakeServoPosOffset;
     private boolean doorOpen = false;
-    private double shooterOpenPos = 0.0;
-    private double shooterClosePos = 0.3;
+    private double shooterBlockerOpenPos = 0.0;
+    private double shooterBlockerClosePos = 0.3;
+    private double shooterBlockerTOllerance = 0.01;
     private double shooterHighPower = 1.0;
     private double shooterLowPower = 0.85;
 
     private double doorOpenPos = 0.3;
-    private double doorClosedPos = 0.8;
+    private double doorClosedPos = 0.7;
+    private double doorTollerance = 0.02;
     private int intakeBallCount = 0;
 
     private String ballColor = "Empty";
@@ -209,12 +211,18 @@ public class MappedActuators {
 
     public void openDoor() {
         door.setPosition(doorOpenPos);
+        while(door.getPosition() < (doorOpenPos - doorTollerance)){
+            //do nothing, wait for door to reach OpenPos
+        }
         setDoorState(true);
 
     }
 
     public void closeDoor() {
         door.setPosition(doorClosedPos);
+        while(door.getPosition() > (doorClosedPos + doorTollerance)){
+            //do nothing, wait for door to reach Closed pos
+        }
         setDoorState(false);
     }
 
@@ -227,12 +235,17 @@ public class MappedActuators {
     }
 
     public void blockShooter() {
-        setShooterBlockerPosition(shooterClosePos);
-
+        setShooterBlockerPosition(shooterBlockerClosePos);
+        while (shooterBlocker.getPosition() < (shooterBlockerClosePos - shooterBlockerTOllerance)){
+            // do nothing, wait for blocker to Close
+        }
     }
 
     public void unblockShooter() {
-        setShooterBlockerPosition(shooterOpenPos);
+        setShooterBlockerPosition(shooterBlockerOpenPos);
+        while (shooterBlocker.getPosition() > (shooterBlockerOpenPos -shooterBlockerTOllerance)){
+            // do nothing, wait for blocker to open
+        }
     }
 
     public int getSorterBottomColorSensorRValue() {

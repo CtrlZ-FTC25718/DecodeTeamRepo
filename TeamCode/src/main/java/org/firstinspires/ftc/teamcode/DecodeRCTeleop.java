@@ -29,7 +29,7 @@ private Follower follower;
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
     private boolean slowMode = false;
-    private double slowModeMultiplier = 0.4;
+    private double slowModeMultiplier = 0.25;
     public MappedActuators robotActuators;
 
     private boolean ballDetected = false;
@@ -182,11 +182,13 @@ private Follower follower;
         if(gamepad2.dpadRightWasPressed()){
             // Sort once Forward
             robotActuators.sorterGoToState(robotActuators.getSorterState()+1, false);
+            //robotActuators.setSorterPosition(robotActuators.getSorterPosition() + .005);
         }
 
         if(gamepad2.dpadLeftWasPressed()){
             // Sort once Backward
-            robotActuators.sorterGoToState(robotActuators.getSorterState()+1, false);
+            robotActuators.sorterGoToState(robotActuators.getSorterState()-1, false);
+            //robotActuators.setSorterPosition(robotActuators.getSorterPosition() - .005);
         }
         if ((gamepad2.dpadUpWasPressed()) || (gamepad2.dpadDownWasPressed())) {
             // Stop intake
@@ -222,6 +224,7 @@ private Follower follower;
         telemetry.addData("G: ",robotActuators.getSorterBottomColorSensorGValue());
         telemetry.addData("B: ",robotActuators.getSorterBottomColorSensorBValue());
         telemetry.addData("sorterState", robotActuators.getSorterState());
+        telemetry.addData("sorterPosition", robotActuators.getSorterPosition());
 
         telemetry.addData("doorServoPosition", robotActuators.door.getPosition());
         telemetry.addData("shooterBlockerPosition", robotActuators.getShooterBlockerPosition());

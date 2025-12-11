@@ -55,7 +55,7 @@ public class MappedActuators {
     private double shooterHighPower = 1.0;
     private double shooterLowPower = 0.85;
 
-    private double doorOpenPos = 0.3;
+    private double doorOpenPos = 0.2;
     private double doorClosedPos = 0.7;
     private double doorTollerance = 0.02;
     private int intakeBallCount = 0;
@@ -113,17 +113,19 @@ public class MappedActuators {
 
     public void spinIntake(String direction) {
         // Spin intake based upon direction
-        if (direction.equals("intake")) {
-            //Intake
-            intake.setDirection(DcMotor.Direction.REVERSE);
-            intake.setPower(1);
-        } else if (direction.equals("reject")) {
-            // Reject
-            intake.setDirection(DcMotorSimple.Direction.FORWARD);
-            intake.setPower(1);
-        } else if (direction.equals("stop")) {
-            // Stop spinning
-            intake.setPower(0);
+        switch (direction) {
+            case "reject": // reject
+                intake.setDirection(DcMotorSimple.Direction.REVERSE);
+                intake.setPower(1);
+                break;
+            case "intake":// intake
+                intake.setDirection(DcMotor.Direction.FORWARD);
+                intake.setPower(1);
+                break;
+            case "stop":
+                // Stop spinning
+                intake.setPower(0);
+                break;
         }
     }
 
@@ -228,29 +230,29 @@ public class MappedActuators {
 
     }
 
-    public boolean getDoorState() {
+    public boolean getDoorOpenState() {
         return doorOpen;
     }
 
-    public void setDoorState(boolean state) {
+    public void setDoorOpenState(boolean state) {
         doorOpen = state;
     }
 
     public void openDoor() {
         door.setPosition(doorOpenPos);
 //        while(withinTol(doorClosedPos, door.getPosition(), doorTollerance)){
-//            setDoorState(false);
+//            setDoorOpenState(false);
 //        }
-        setDoorState(true);
+        setDoorOpenState(true);
 
     }
 
     public void closeDoor() {
         door.setPosition(doorClosedPos);
 //        while(withinTol(doorClosedPos, door.getPosition(), doorTollerance)){
-//            setDoorState(true);
+//            setDoorOpenState(true);
 //        }
-        setDoorState(false);
+        setDoorOpenState(false);
     }
 
     public boolean getShooterBlockerState() {
@@ -359,34 +361,54 @@ public class MappedActuators {
     }
 
     public void shootBall(String powerLevel) {
+        spinIntake("stop");
         spinShooter("start", powerLevel);
+        openDoor(); // shoot ball at the door first
+        decrementIntakeBallCount();
+        delay("very high"); delay("very high"); delay("very high");
 
+        // Shoot rest of the balls
         while (intakeBallCount > 0) {
-            openDoor();
             unblockShooter();
             sorterGoToState(getSorterState() + 1, true);
+            delay("high"); delay("high");
             decrementIntakeBallCount();
         }
         // Shoot two extra (to handle the case with just 2 balls in the sorter
         sorterGoToState(getSorterState() + 1, true);
+        delay("high"); delay("high");
         sorterGoToState(getSorterState() + 1, true);
+        delay("high"); delay("high");
 
         // sorter is guaranteed to be empty, so reset
-        spinShooter("stop", powerLevel);
         resetSorter();
         blockShooter();
-        //spinIntake("intake");
+        spinShooter("stop", powerLevel);
+        closeDoor();
+        setRGBIndicatorTo(0.0);
+        spinIntake("intake"); // Not sure why "intake" rejects here.
     }
 
     private boolean withinTol(double target, double actual, double tol){
         return Math.abs(target - actual) <= tol;
     }
 
-    private void delay(String level){
+    public void delay(String level){
         int count = 0, countLevel = 0;
-        if (level.equals("low")){countLevel = 5000;}
-        else if (level.equals("medium")){countLevel = 10000;}
-        else {countLevel = 20000;}
+        switch (level) {
+            case "low":
+                countLevel = 10000;
+                break;
+            case "medium":
+                countLevel = 20000;
+                break;
+            case "high":
+                countLevel = 30000;
+                break;
+            default:
+                countLevel = 40000;
+                break;
+        }
 
         while (count < countLevel) {count++;};
     }

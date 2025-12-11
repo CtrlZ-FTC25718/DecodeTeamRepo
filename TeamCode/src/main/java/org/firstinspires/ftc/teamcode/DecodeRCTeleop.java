@@ -103,6 +103,7 @@ private Follower follower;
         //robotActuators.setRGBIndicatorByIntakeBallCount();
         ballDetected = robotActuators.detectBall();
         if (!prevBallDetected && ballDetected && robotActuators.getIntakeBallCount() == 0) {
+            robotActuators.delay("high");
             robotActuators.sorterGoToState(1, false);
             robotActuators.incrementIntakeBallCount(); // set to 1
             //RGBColor = 0.25;
@@ -167,7 +168,7 @@ private Follower follower;
         if(gamepad2.yWasPressed()) {
             // Start shooter
             robotActuators.spinShooter("start", "high");
-            if (!robotActuators.getDoorState()) {
+            if (!robotActuators.getDoorOpenState()) {
                 robotActuators.unblockShooter();
             }
             else {
@@ -177,6 +178,12 @@ private Follower follower;
         if(gamepad2.aWasPressed()){
             // Stop shooter
             robotActuators.spinShooter("stop", "low");
+            if (!robotActuators.getDoorOpenState()) {
+                robotActuators.unblockShooter();
+            }
+            else {
+                robotActuators.blockShooter();
+            }
         }
 
         if(gamepad2.dpadRightWasPressed()){
@@ -195,11 +202,11 @@ private Follower follower;
             robotActuators.resetSorter();
         }
 
-        if (gamepad2.rightBumperWasPressed()){
-            robotActuators.closeDoor();
-        }
-        if (gamepad2.leftBumperWasPressed()){
+        if (gamepad2.rightBumperWasPressed() && !robotActuators.getDoorOpenState()){
             robotActuators.openDoor();
+        }
+        if (gamepad2.leftBumperWasPressed() && robotActuators.getDoorOpenState()){
+            robotActuators.closeDoor();
         }
         if (gamepad2.xWasPressed()){
             robotActuators.unblockShooter();
@@ -227,6 +234,7 @@ private Follower follower;
         telemetry.addData("sorterPosition", robotActuators.getSorterPosition());
 
         telemetry.addData("doorServoPosition", robotActuators.door.getPosition());
+        telemetry.addData("DoorOpenState", robotActuators.getDoorOpenState());
         telemetry.addData("shooterBlockerPosition", robotActuators.getShooterBlockerPosition());
 
         telemetry.addData("X", follower.getPose().getX());

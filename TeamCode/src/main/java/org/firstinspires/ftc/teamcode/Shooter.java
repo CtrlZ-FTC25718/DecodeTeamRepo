@@ -26,7 +26,6 @@ public class Shooter {
         shooterBack.setDirection(DcMotor.Direction.REVERSE);
         shooterBack.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         shooterBack.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.FLOAT);
-
     }
 
     public void setPower(double backPower, double frontPower){

@@ -165,6 +165,17 @@ public class Sorter {
         return sorterServo.getPosition();
     }
 
+    public boolean hasDoorOpened(){
+        if (doorServo.getPosition() < 0.2) {
+            // door has opened enough
+            return true;
+        }
+        else {
+            // door hasn't opened enough
+            return false;
+        }
+    }
+
     //Enforce State
     public void update(){
         sorterServo.setPosition((double) state.get(0));

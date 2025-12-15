@@ -55,8 +55,8 @@ public class MappedActuators {
     private double shooterHighPower = 1.0;
     private double shooterLowPower = 0.85;
 
-    private double doorOpenPos = 0.2;
-    private double doorClosedPos = 0.7;
+    private double doorOpenPos = 0.25;
+    private double doorClosedPos = 0.6;
     private double doorTollerance = 0.02;
     private int intakeBallCount = 0;
 
@@ -173,60 +173,60 @@ public class MappedActuators {
     }
 
     public void sorterGoToState(int state, boolean wiggle) {
-        int wiggleCount = 200, count = 0;
-        double wigglePos = 0.0, wiggleMag = 0.0025;
-        double newSorterPos = 0.0;
-        boolean sorterReachedTargetPos = false;
-
-        if (state <= 0) {
-            resetSorter();
-            newSorterPos = sorterPos0;
-        } else if (state == 1) {
-            sorterServo.setPosition((sorterPos1));
-            setSorterState(1);
-            newSorterPos = sorterPos1;
-        } else if (state == 2) {
-            sorterServo.setPosition((sorterPos2));
-            setSorterState(2);
-            newSorterPos = sorterPos2;
-        } else if (state == 3) {
-            sorterServo.setPosition((sorterPos3));
-            setSorterState(3);
-            newSorterPos = sorterPos3;
-        } else if (state == 4) {
-            sorterServo.setPosition((sorterPos4));
-            setSorterState(4);
-            newSorterPos = sorterPos4;
-        } else if (state == 5) {
-            sorterServo.setPosition((sorterPos5));
-            setSorterState(5);
-            newSorterPos = sorterPos5;
-        } else if (state == 6) {
-            sorterServo.setPosition((sorterPos6));
-            setSorterState(6);
-            newSorterPos = sorterPos6;
-        } else if (state == 7) {
-            sorterServo.setPosition((sorterPos6));
-            setSorterState(7);
-            newSorterPos = sorterPos7;
-        }
-
-//        while (withinTol(newSorterPos, sorterServo.getPosition(), sorterTollerance)){
-//            sorterReachedTargetPos = false;
+//        int wiggleCount = 200, count = 0;
+//        double wigglePos = 0.0, wiggleMag = 0.0025;
+//        double newSorterPos = 0.0;
+//        boolean sorterReachedTargetPos = false;
+//
+//        if (state <= 0) {
+//            resetSorter();
+//            newSorterPos = sorterPos0;
+//        } else if (state == 1) {
+//            sorterServo.setPosition((sorterPos1));
+//            setSorterState(1);
+//            newSorterPos = sorterPos1;
+//        } else if (state == 2) {
+//            sorterServo.setPosition((sorterPos2));
+//            setSorterState(2);
+//            newSorterPos = sorterPos2;
+//        } else if (state == 3) {
+//            sorterServo.setPosition((sorterPos3));
+//            setSorterState(3);
+//            newSorterPos = sorterPos3;
+//        } else if (state == 4) {
+//            sorterServo.setPosition((sorterPos4));
+//            setSorterState(4);
+//            newSorterPos = sorterPos4;
+//        } else if (state == 5) {
+//            sorterServo.setPosition((sorterPos5));
+//            setSorterState(5);
+//            newSorterPos = sorterPos5;
+//        } else if (state == 6) {
+//            sorterServo.setPosition((sorterPos6));
+//            setSorterState(6);
+//            newSorterPos = sorterPos6;
+//        } else if (state == 7) {
+//            sorterServo.setPosition((sorterPos6));
+//            setSorterState(7);
+//            newSorterPos = sorterPos7;
 //        }
-//        sorterReachedTargetPos = true;
-
-        if (wiggle) {
-            wigglePos = sorterServo.getPosition();
-            while (count < wiggleCount) {
-                sorterServo.setPosition((wigglePos - wiggleMag));
-                sorterServo.setPosition((wigglePos + wiggleMag));
-                count++;
-            }
-            sorterServo.setPosition(wigglePos);
-        }
-
-        setRGBIndicatorByIntakeBallCount();
+//
+////        while (withinTol(newSorterPos, sorterServo.getPosition(), sorterTollerance)){
+////            sorterReachedTargetPos = false;
+////        }
+////        sorterReachedTargetPos = true;
+//
+//        if (wiggle) {
+//            wigglePos = sorterServo.getPosition();
+//            while (count < wiggleCount) {
+//                sorterServo.setPosition((wigglePos - wiggleMag));
+//                sorterServo.setPosition((wigglePos + wiggleMag));
+//                count++;
+//            }
+//            sorterServo.setPosition(wigglePos);
+//        }
+//
+//        setRGBIndicatorByIntakeBallCount();
 
     }
 

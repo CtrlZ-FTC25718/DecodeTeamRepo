@@ -29,7 +29,7 @@ public class Sorter {
         detector = map.get(ColorSensor.class, "sorterBottomColorSensor");
         indicatorLight = map.get(Servo.class, "rgbIndicator");
 
-        sorterServo.setPosition(0.105); //Change to Specify Offset
+        sorterServo.setPosition(0.115); //Change to Specify Offset
 
         //State: {Position of SorterServo, Ball Color Stack, Closed/Open Door}; Ball Color Stack in Order: Closest to Shoot --> Farthest to Shoot
         state = new ArrayList<Object>();
@@ -172,6 +172,17 @@ public class Sorter {
         }
         else {
             // door hasn't opened enough
+            return false;
+        }
+    }
+
+    public boolean hasDoorClosed(){
+        if (doorServo.getPosition() > 0.55) {
+            // door has closed enough
+            return true;
+        }
+        else {
+            // door hasn't closed enough
             return false;
         }
     }

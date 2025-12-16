@@ -43,7 +43,8 @@ private Follower follower;
     private ElapsedTime timer;
     private double[] delayTimer;
     private String[] stack;
-    private boolean shootArtifact;
+    private boolean shootArtifactAtHighSpeed;
+    private boolean shootArtifactAtLowSpeed;
 
     /** This method is call once when init is played, it initializes the follower **/
     @Override
@@ -66,12 +67,16 @@ private Follower follower;
         sorter.door("Close");
         sorter.update();
 
-        shootArtifact = false;
-        // Use shotTimer to delay for various reasons
-        // Index 0, 1, 2 used for shot delay management
-        // Index 3 used for delaying intake reversal when sorter is full
-        // Index 4 used for delaying sorter shift once a ball has been detected
-        delayTimer = new double[5]; // create 5 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
+        shootArtifactAtHighSpeed = false;
+        shootArtifactAtLowSpeed = false;
+
+        // Use shotTimer to delay for various reasons\
+        // Index 0 used for delaying intake reversal when sorter is full
+        // Index 1 used for delaying sorter rotation for intaking
+        // Index 2 used for delaying ball detection
+        // Index 3 used for delaying for door opening to shoot artifact
+        // Index 4 used for delaying sorter rotation for shooting
+        delayTimer = new double[5]; // create 4 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
 
 
     }
@@ -83,13 +88,59 @@ private Follower follower;
 
     // General timerExpiration Check function
     private boolean timerExpired(int timerIndex , double waitTime){
-        if (timer.milliseconds() - delayTimer[timerIndex] < waitTime){
-            return true;
-        }
-        else {
-            return false;
+        return (timer.milliseconds() - delayTimer[timerIndex] > waitTime);
+    }
+
+    private void shootArtifact (){
+        stack = sorter.getArtifactStack();
+        if (timerExpired(3,2000)){
+            shooter.openBlocker();
+
+            if(!sorter.isEmpty() && shooter.isAtHighVel() && shootArtifactAtHighSpeed){
+                if (sorter.hasDoorOpened() && timerExpired(4, 1000)){
+                    sorter.registerShot();
+                    sorter.shift(1);
+                    sorter.update();
+                }
+            }
+            else if (!sorter.isEmpty() && shooter.isAtLowVel() && shootArtifactAtLowSpeed){
+                if (sorter.hasDoorOpened() && timerExpired(4,1000)){
+                    sorter.registerShot();
+                    sorter.shift(1);
+                    sorter.update();
+                }
+            }
+            else {
+                // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
+                // Execute end actions after shooting artifacts
+                sorter.door("Close");
+                sorter.update();
+
+                // Wait for door to close
+                if (sorter.hasDoorClosed()) {
+                    sorter.shift(-3);
+                    sorter.update();
+                    shooter.setPower(0, 0);
+
+                    // Done shooting set shooting states to false
+                    if (shootArtifactAtHighSpeed) {
+                        shootArtifactAtHighSpeed = false;
+                    } else {
+                        shootArtifactAtLowSpeed = false;
+                    }
+
+                }
+                // Rest all delay timers
+                delayTimer[0] = 0; // Reset Intake Delay Timer
+                delayTimer[1] = 0; // Sorter rotate Delay Timer (for intake)
+                delayTimer[2] = 0; // Ball detect Delay Timer
+                delayTimer[3] = 0; // Reset Shooter Door Delay Timer
+                delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
+
+            }
         }
     }
+
 
     /** This method is called once at the start of the OpMode. **/
     @Override
@@ -134,78 +185,49 @@ private Follower follower;
         }
 
         //Set Intake Direction Based Upon Space:
-        if(sorter.isFull() && timerExpired(3,750)){
-            intake.setPower(-1); //Set intake to reject
-            shooter.setPower(1, 1);
-            intake.update();
+        if(sorter.isFull()){
+            if (timerExpired(0,1000)) {
+                intake.setPower(-1); //Set intake to reject
+                shooter.setPower(1, 1);
+                intake.update();
+            }
         }
-
         else{
             intake.setPower(1);
             intake.update();
+            delayTimer[0] = 0; // Reset intake reverse timer
         }
 
-        sorter.detect(); //Detect potential artifact
-        stack = sorter.getArtifactStack();
+        if(sorter.isFull() && delayTimer[0] == 0){
+            delayTimer[0] = timer.milliseconds(); // Start a new timer to stop the intake and reject artifacts
+        }
 
-        if(sorter.isFull() && delayTimer[3] == 0){
-            delayTimer[3] = timer.milliseconds(); // Start a new timer to stop the intake and reject artifacts
+        if(timerExpired(2, 500) || delayTimer[2] == 0){
+            sorter.detect(); //Detect potential artifact
+            stack = sorter.getArtifactStack();
+            Log.d("Shifting1", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+            delayTimer[2] = 0;
         }
 
         if(!stack[2].equals("")){
             if(!sorter.isFull()){
-                sorter.shift(2); //If ball intaked & not full, shift to shooting pos [0]
 
-                if(delayTimer[4] == 0){
-                    delayTimer[4] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
+                if(delayTimer[1] == 0){
+                    delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                 }
-                if(timerExpired(4, 500)){
+                if(timerExpired(1, 100)){
+                    sorter.shift(2); //If ball has been taken in & sorter not full, shift to shooting pos [0]
                     sorter.update();
+                    delayTimer[1] = 0;
+                    delayTimer[2] = timer.milliseconds();
+                    Log.d("Shifting2", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
                 }
             }
         }
 
-
-        // Shoot Artifact without holding the thread
-        if (shootArtifact){
-            stack = sorter.getArtifactStack();
-            if(!sorter.isEmpty()){
-                if (sorter.hasDoorOpened() && timerExpired(0,1000) ) {
-                    sorter.registerShot();
-                    sorter.shift(1);
-                    sorter.update();
-                    // re-set delayTimer[0]
-                    delayTimer[0] = timer.milliseconds(); // Reset for waiting between shots
-                    delayTimer[1] = timer.milliseconds(); // Reset timer for after sorter is empty and end of shooting actions
-                }
-            }
-            else {
-                // Sorter is empty; But will execute until shootArtifact is false
-                // Execute end actions after shooting artifacts
-                shooter.setPower(0, 0);
-                sorter.door("Close");
-                sorter.update();
-
-                // Wait for door to close
-                if (timerExpired (1,750)) {
-                    sorter.shift(-3);
-                    sorter.update();
-                    delayTimer[2] = timer.milliseconds(); // Reset timer for final delay in end of shooting actions
-                }
-                if (timerExpired(2, 1000)){
-                    // All done with shooting artifacts
-                    shootArtifact = false;
-
-                    // Reset all timers used for shooting artifacts
-                    for (int i = 0; i<3; i++){
-                        delayTimer[i] = 0.0;
-                    }
-
-                    // Reset Intake Timer delayTimer[3]
-                    delayTimer[3] = 0.0;
-                }
-            }
-
+        // Shoot Artifact without holding the thread if triggered
+        if (shootArtifactAtHighSpeed || shootArtifactAtLowSpeed){
+            shootArtifact();
         }
 
 
@@ -223,21 +245,33 @@ private Follower follower;
             slowMode = !slowMode;
         }
 
-
-        if(gamepad1.xWasPressed() || gamepad1.xWasReleased()){
-            //Shoot Artifacts (everyting that is in the stack)
+        if(gamepad1.yWasPressed() || gamepad1.yWasReleased()){
+            //Shoot Artifacts (everything that is in the stack)
             if(!sorter.isEmpty()){
-                shootArtifact = true;
-                shooter.setPower(1, 1);
+                shootArtifactAtHighSpeed = true;
+                shooter.setVelocity("High");
                 intake.setPower(0);
                 intake.update();
-                //this.delay(3000);
                 sorter.door("Open");
-                shooter.openBlocker();
+                //shooter.openBlocker();
                 sorter.update();
-                // initialize delayTimer[0]
-                delayTimer[0] = timer.milliseconds();
+                delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
+                delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
+            }
+        }
 
+        if(gamepad1.xWasPressed() || gamepad1.xWasReleased()){
+            //Shoot Artifacts (everything that is in the stack)
+            if(!sorter.isEmpty()){
+                shootArtifactAtLowSpeed = true;
+                shooter.setVelocity("Low");
+                intake.setPower(0);
+                intake.update();
+                sorter.door("Open");
+                //shooter.openBlocker();
+                sorter.update();
+                delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
+                delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
             }
         }
 

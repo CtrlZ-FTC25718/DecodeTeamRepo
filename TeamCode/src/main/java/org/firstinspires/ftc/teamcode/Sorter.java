@@ -20,6 +20,7 @@ public class Sorter {
 
     //State
     private ArrayList<Object> state;
+    private static final double sorterZeroPos = 0.05; // was 0.115
 
     //Constructor
     public Sorter(HardwareMap map){
@@ -29,7 +30,6 @@ public class Sorter {
         detector = map.get(ColorSensor.class, "sorterBottomColorSensor");
         indicatorLight = map.get(Servo.class, "rgbIndicator");
 
-        sorterServo.setPosition(0.115); //Change to Specify Offset
 
         //State: {Position of SorterServo, Ball Color Stack, Closed/Open Door}; Ball Color Stack in Order: Closest to Shoot --> Farthest to Shoot
         state = new ArrayList<Object>();
@@ -37,16 +37,21 @@ public class Sorter {
         state.add(new String[] {"", "", ""}); // state.get/set(1)
         state.add("Closed"); // state.get/set(2)
 
+        this.reset(); //Reset sorter to SorterZeroPos
+
         sorterServo.setDirection(Servo.Direction.FORWARD);
         // sorterServo.setPosition(0);
 
         indicatorLight.scaleRange(0.0, 1.0);
 
+        this.update();
+
+
     }
 
     public void shift(int numberPositions){
         //Update sorterServo Position to reflect shift
-        state.set(0, (double) state.get(0) + .07 * numberPositions);
+        state.set(0, (double) state.get(0) + .069 * numberPositions);
 
         //Initialize temporary storage for shuffling
         String temp = "";
@@ -136,6 +141,11 @@ public class Sorter {
         return (double) state.get(0) > (1 - .07 * 3);
     }
 
+    public void reset(){
+        state.set(0,sorterZeroPos);
+        this.update();
+    }
+
     public boolean isEmpty(){
         String[] tempArray = (String[]) state.get(1);
         return tempArray[0].equals("") && tempArray[1].equals("") && tempArray[2].equals("");
@@ -160,9 +170,23 @@ public class Sorter {
         return (String[]) state.get(1);
     }
 
+    public int getArtifactCount(){
+        String[] stack = getArtifactStack();
+        int count = 0;
+        for(int i=0; i<3; i++){
+            if (stack[i].equals("Ball")) { count++; }
+        }
+        return count;
+    }
+
     //Access sorterServo position
     public double getPosition(){
         return sorterServo.getPosition();
+    }
+
+    public void setPosition(double newPosition){
+        state.set(0,newPosition);
+        this.update();
     }
 
     public boolean hasDoorOpened(){
@@ -185,6 +209,28 @@ public class Sorter {
             // door hasn't closed enough
             return false;
         }
+    }
+
+    // Set indicatorColor by number of artifacts
+    public void setIndicatorLightColor(){
+        String[] stack = getArtifactStack();
+        if (getArtifactCount() == 3){
+            indicatorLight.setPosition(0.5);
+        }
+        else if (getArtifactCount() ==2){
+            indicatorLight.setPosition(0.555);
+        }
+        else if (getArtifactCount() == 1){
+            indicatorLight.setPosition(0.38);
+        }
+        else {
+            indicatorLight.setPosition(0.28);
+        }
+    }
+
+    // set indicator color to inialized
+    public void initializeIndicatorColor(){
+        indicatorLight.setPosition(0.67);
     }
 
     //Enforce State

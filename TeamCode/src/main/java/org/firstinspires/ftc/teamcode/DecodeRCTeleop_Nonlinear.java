@@ -94,66 +94,66 @@ private Follower follower;
 
     private void shootArtifact (){
         if (timerExpired(3,2000)){
-            Log.d("Shooter1", "Sorter Door Timer Expired");
+            //Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
-                Log.d("Shooter2", "Sorter Not empty");
-                if  (timerExpired(4, 1000)) {
-                    Log.d("Shooter3", "Sorter Timer Expired");
+                //Log.d("Shooter2", "Sorter Not empty");
+                if  (timerExpired(4, 500)) {
+                    //Log.d("Shooter3", "Sorter Timer Expired");
                     if (sorter.hasDoorOpened()) {
-                        Log.d("Shooter4", "Sorter Door Is Open");
+                        //Log.d("Shooter4", "Sorter Door Is Open");
 
                         // Long shot
                         if (shootArtifactAtHighSpeed) {
-                            Log.d("Shooter5", "Long shot active");
+                            //Log.d("Shooter5", "Long shot active");
                             if (shooter.isAtHighVel()) {
                                 shooter.openBlocker();
 
                                 stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                //Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
                                 sorter.registerShot();
                                 stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                //Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
                                 shotCount++;
                                 if (!sorter.isEmpty()) {
                                     sorter.shift(1);
                                     sorter.update();
-                                    Log.d("ShooterShift", "Sorter Has Shifted");
+                                    //Log.d("ShooterShift", "Sorter Has Shifted");
                                 }
 
                                 stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
 
                                 delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
-                                Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
+                                //Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
                             }
                             else {
-                                Log.d("Shooter7", "shootArtifactAtHighSpeed is false");
+                                //Log.d("Shooter7", "shootArtifactAtHighSpeed is false");
                             }
                         }
 
                         else {
-                            Log.d("Shooter11", "Velocity high/low not reached");
+                            //Log.d("Shooter11", "Velocity high/low not reached");
                         }
                     }
 
 
                     else{
-                        Log.d("Shooter12", "Door is not open");
+                        //Log.d("Shooter12", "Door is not open");
                     }
                 }
 
 
                 else {
-                    Log.d("Shooter13", "Waiting for delayTimer[4] to expire");
+                    //Log.d("Shooter13", "Waiting for delayTimer[4] to expire");
                 }
             }
             else {
                 // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
                 // Execute end actions after shooting artifacts
-                Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
+                //Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
                 sorter.door("Close");
                 //sorter.shift(-3);
                 sorter.reset();
@@ -246,14 +246,14 @@ private Follower follower;
 
         if((timerExpired(2, 500) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
             stack = sorter.getArtifactStack();
-            Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+            //Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
             sorter.detect(); //Detect potential artifact
             stack = sorter.getArtifactStack();
-            Log.d("Shifting1", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+            //Log.d("Shifting1", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
             stack = sorter.getArtifactStack();
-            Log.d("ShootingStackAfterDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+            //Log.d("ShootingStackAfterDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
 
             delayTimer[2] = 0;
@@ -270,7 +270,7 @@ private Follower follower;
                     sorter.update();
                     delayTimer[1] = 0;
                     delayTimer[2] = timer.milliseconds();
-                    Log.d("Shifting2", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                    //Log.d("Shifting2", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
                 }
             }
         }
@@ -356,8 +356,8 @@ private Follower follower;
         telemetry.addData("Artifacts: ", '{' + stack[0] + " | " + stack[1] + " | " + stack[2] + '}');
         telemetry.addData("SorterFull: ", sorter.isFull());
 
-        telemetry.addData("ShooterFrontVel: ", shooter.getShooterFrontVel());
-        telemetry.addData("ShooterBackVel: ", shooter.getShooterFrontVel());
+        telemetry.addData("ShooterFrontVel d/s: ", shooter.getShooterFrontVel());
+        telemetry.addData("ShooterBackVel d/s: ", shooter.getShooterFrontVel());
 
         telemetry.addData("SorterPos: ", sorter.getPosition());
 

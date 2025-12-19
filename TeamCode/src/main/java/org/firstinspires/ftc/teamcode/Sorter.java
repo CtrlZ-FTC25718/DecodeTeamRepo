@@ -122,6 +122,11 @@ public class Sorter {
 //        }
     }
 
+    public void wiggleUp(){
+        sorterServo.setPosition(sorterServo.getPosition() - 0.01);
+    }
+
+
     //Open/Close Sorter Door Based on Input
     public void door(String input){
         if(input.equals("Open")){

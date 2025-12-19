@@ -105,8 +105,10 @@ private Follower follower;
 
                         // Long shot
                         if (shootArtifactAtHighSpeed) {
+
                             //Log.d("Shooter5", "Long shot active");
                             if (shooter.isAtHighVel()) {
+
                                 shooter.openBlocker();
 
                                 stack = sorter.getArtifactStack();
@@ -151,30 +153,33 @@ private Follower follower;
                 }
             }
             else {
-                // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
-                // Execute end actions after shooting artifacts
-                //Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
-                sorter.door("Close");
-                //sorter.shift(-3);
-                sorter.reset();
-                sorter.update();
+                if (timerExpired(4, 2000)){
+                    // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
+                    // Execute end actions after shooting artifacts
+                    //Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
+                    sorter.door("Close");
+                    //sorter.shift(-3);
+                    sorter.reset();
+                    sorter.update();
 
-                shooter.setPower(0, 0);
-                //shooter.closeBlocker();
+                    shooter.setVelocity("Low");
+                    //shooter.closeBlocker();
 
-                // Done shooting set shooting states to false
-                if (shootArtifactAtHighSpeed) { shootArtifactAtHighSpeed = false;}
-                if (shootArtifactAtLowSpeed){ shootArtifactAtLowSpeed = false;}
+                    // Done shooting set shooting states to false
+                    if (shootArtifactAtHighSpeed) { shootArtifactAtHighSpeed = false;}
+                    if (shootArtifactAtLowSpeed){ shootArtifactAtLowSpeed = false;}
 
-                shotCount = 0; // Reset Shot counter
+                    shotCount = 0; // Reset Shot counter
 
-                // Rest all delay timers
-                delayTimer[0] = 0; // Reset Intake Delay Timer
-                delayTimer[1] = 0; // Sorter rotate Delay Timer (for intake)
-                delayTimer[2] = 0; // Ball detect Delay Timer
-                delayTimer[3] = 0; // Reset Shooter Door Delay Timer
-                delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
+                    // Rest all delay timers
+                    delayTimer[0] = 0; // Reset Intake Delay Timer
+                    delayTimer[1] = 0; // Sorter rotate Delay Timer (for intake)
+                    delayTimer[2] = 0; // Ball detect Delay Timer
+                    delayTimer[3] = 0; // Reset Shooter Door Delay Timer
+                    delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
 
+
+                }
 
             }
         }
@@ -187,6 +192,7 @@ private Follower follower;
         //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
+        shooter.setVelocity("Low");
     }
 
     /** This is the main loop of the opmode and runs continuously after play **/
@@ -302,6 +308,7 @@ private Follower follower;
                 shotCount = 0;
                 sorter.door("Open");
                 sorter.update();
+                sorter.wiggleUp();
 
                 shooter.setVelocity("High");
                 shooter.closeBlocker(); // do not shoot until velocity is reached
@@ -321,6 +328,7 @@ private Follower follower;
                 shotCount = 0;
                 sorter.door("Open");
                 sorter.update();
+                sorter.wiggleUp();
 
                 shooter.setVelocity("Low");
                 shooter.closeBlocker(); // do not shoot until velocity is reached

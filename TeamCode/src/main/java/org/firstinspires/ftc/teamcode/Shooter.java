@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
@@ -19,7 +20,7 @@ public class Shooter {
     private Servo blocker;
     private PIDFCoefficients shooterFrontPIDF;
     private PIDFCoefficients shooterBackPIDF;
-    private final double[] shooterVel = {1500, 2000, 1500, 2000}; // In Deg/Sec: Front Low, Front High, Back Low, Back High
+    private final double[] shooterVel = {1200, 1700, 1200, 1800}; // In Deg/Sec: Front Low, Front High, Back Low, Back High
 
     //Constructor
     public Shooter(HardwareMap map) {
@@ -28,7 +29,7 @@ public class Shooter {
         shooterBack = map.get(DcMotorEx.class, "shooterBackMotor");
         blocker = map.get(Servo.class, "shooterBlocker");
 
-        shooterFront.setDirection(DcMotorEx.Direction.REVERSE);
+        shooterFront.setDirection(DcMotorEx.Direction.FORWARD);
         shooterFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         shooterFront.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
@@ -36,8 +37,8 @@ public class Shooter {
         shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         shooterBack.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-        shooterFrontPIDF = new PIDFCoefficients(30, 0, 0, 13.3);
-        shooterBackPIDF = new PIDFCoefficients(23, 0, 0, 13);
+        shooterFrontPIDF = new PIDFCoefficients(50, 0, 0, 25);
+        shooterBackPIDF = new PIDFCoefficients(40, 0, 0, 20);
 
         shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
         shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);

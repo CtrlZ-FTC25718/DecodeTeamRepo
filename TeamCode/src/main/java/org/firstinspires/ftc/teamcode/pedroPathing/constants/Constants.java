@@ -21,24 +21,18 @@ public class Constants {
 
     public static FollowerConstants followerConstants = new FollowerConstants()
             .mass(14.3)
-            .forwardZeroPowerAcceleration(-38.5936)
-            .lateralZeroPowerAcceleration(-81.1515)
+            .forwardZeroPowerAcceleration(-31.308) // -34.38, -34.19, -29.69, -27.69, -30.59
+            .lateralZeroPowerAcceleration(-68.952) //-69.29 -68.44, 68.47, -68.84, -69.72
             .useSecondaryTranslationalPIDF(true)
             .useSecondaryHeadingPIDF(true)
             .useSecondaryDrivePIDF(true)
             .centripetalScaling(0.0007)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.15, 0.0, 0.0035, 0.05))
-            .headingPIDFCoefficients(new PIDFCoefficients(2, 0, 0.075, 0))
-            .drivePIDFCoefficients(
-                    new FilteredPIDFCoefficients(0.005, 0, 0.00001, 0.6, 0)
-            )
-            .secondaryTranslationalPIDFCoefficients(
-                    new PIDFCoefficients(0.1, 0, 0.005, 0)
-            )
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2, 0, 0.06, 0))
-            .secondaryDrivePIDFCoefficients(
-                    new FilteredPIDFCoefficients(0.1, 0, 0.00001, 0.6, 0)
-            );
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0.05))
+            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.005, 0.01))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.005, 0, 0.0005, 0.6, 0))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.15, 0, 0.02, 0.05))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.5, 0, 0.003, 0))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.05, 0, 0.001, 0.6, 0));
 
     public static DriveEncoderConstants robotConstants = new DriveEncoderConstants()
             .robotWidth(14.2)
@@ -54,20 +48,14 @@ public class Constants {
             .rightFrontMotorDirection(DcMotorEx.Direction.FORWARD)
             .rightRearMotorDirection(DcMotorEx.Direction.FORWARD)
 
-//            .leftFrontMotorDirection(DcMotorEx.Direction.FORWARD)
-//            .leftRearMotorDirection(DcMotorEx.Direction.FORWARD)
-//            .rightFrontMotorDirection(DcMotorEx.Direction.REVERSE)
-//            .rightRearMotorDirection(DcMotorEx.Direction.REVERSE)
-
-            .xVelocity(48.3037) //81.07303
-            .yVelocity(67.4132) //68.58403
-            .useBrakeModeInTeleOp(true)
+            .xVelocity(62.922) //63.3, 62.9, 63.3, 62.09, 63.02
+            .yVelocity(50.732) //50.73, 50.4, 50.91, 50.66, 50.97
             .useVoltageCompensation(true);
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()
-            .forwardPodY(4) // was 2
-            .strafePodX(25.4) // was 21.5
+            .forwardPodY(5)
+            .strafePodX(31.75)
             .distanceUnit(DistanceUnit.MM)
             .hardwareMapName("pinpoint")
             .yawScalar(1.0)
@@ -76,10 +64,10 @@ public class Constants {
             .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static PathConstraints pathConstraints = new PathConstraints(
-            0.995,
+            0.8,
             50,
-            3.5,
-            9
+            1.75,
+            15
     );
 
     public static Follower createFollower(HardwareMap hardwareMap) {

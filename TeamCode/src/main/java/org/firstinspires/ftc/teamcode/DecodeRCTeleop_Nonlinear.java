@@ -24,7 +24,7 @@ import android.util.Log;
 @TeleOp(name = "Decode RC Nonlinear Tele0p")
 public class DecodeRCTeleop_Nonlinear extends OpMode {
 private Follower follower;
-    public Pose startingPose  = new Pose(0,0, Math.toRadians(90));; //See ExampleAuto to understand how to use this
+    public Pose startingPose  = new Pose(48,9, Math.toRadians(90));; //See ExampleAuto to understand how to use this
     private boolean automatedDrive;
     private Supplier<PathChain> pathChain;
     private TelemetryManager telemetryM;
@@ -51,8 +51,8 @@ private Follower follower;
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         pathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(45, 98))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), 0.8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(72, 24))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(70), 0.8))
                 .build();
 
         intake = new Intake(hardwareMap);
@@ -98,7 +98,7 @@ private Follower follower;
 
             if(!sorter.isEmpty()){
                 //Log.d("Shooter2", "Sorter Not empty");
-                if  (timerExpired(4, 500)) {
+                if  (timerExpired(4, 1000)) {
                     //Log.d("Shooter3", "Sorter Timer Expired");
                     if (sorter.hasDoorOpened()) {
                         //Log.d("Shooter4", "Sorter Door Is Open");
@@ -108,6 +108,8 @@ private Follower follower;
 
                             //Log.d("Shooter5", "Long shot active");
                             if (shooter.isAtHighVel()) {
+                                //shooter.velocityHold(0.1);
+                                //Log.d("Shooter5p1", "Shooter reached high Vel");
 
                                 shooter.openBlocker();
 
@@ -132,12 +134,46 @@ private Follower follower;
                                 //Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
                             }
                             else {
-                                //Log.d("Shooter7", "shootArtifactAtHighSpeed is false");
+                                //Log.d("Shooter7", "Shooter isAtHighVel is false");
+                            }
+                        }
+
+                        // Close shot
+                        else if (shootArtifactAtLowSpeed) {
+
+                            //Log.d("Shooter5p2", "Close shot active");
+                            if (shooter.isAtLowVel()) {
+                                //Log.d("Shooter5p2", "Shooter reached low Vel");
+
+                                shooter.openBlocker();
+
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                sorter.registerShot();
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+                                shotCount++;
+                                if (!sorter.isEmpty()) {
+                                    sorter.shift(1);
+                                    sorter.update();
+                                    //Log.d("ShooterShift", "Sorter Has Shifted");
+                                }
+
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+
+                                delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
+                                //Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
+                            }
+                            else {
+                                //Log.d("Shooter7", "Shooter isAtLowVel is false");
                             }
                         }
 
                         else {
-                            //Log.d("Shooter11", "Velocity high/low not reached");
+                            //Log.d("Shooter11", "shootArtifactAtHighSpeed && shootArtifactAtLowSpeed is false");
                         }
                     }
 
@@ -162,7 +198,7 @@ private Follower follower;
                     sorter.reset();
                     sorter.update();
 
-                    shooter.setVelocity("Low");
+                    shooter.setVelocity("Idle");
                     //shooter.closeBlocker();
 
                     // Done shooting set shooting states to false
@@ -192,7 +228,7 @@ private Follower follower;
         //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
-        shooter.setVelocity("Low");
+        shooter.setVelocity("Idle");
     }
 
     /** This is the main loop of the opmode and runs continuously after play **/
@@ -287,7 +323,7 @@ private Follower follower;
         }
 
 
-        if (gamepad1.aWasPressed()) {
+        if (gamepad1.a) {
             follower.followPath(pathChain.get());
             automatedDrive = true;
         }
@@ -305,16 +341,18 @@ private Follower follower;
             //Shoot Artifacts (everything that is in the stack)
             if(!sorter.isEmpty()){
                 shootArtifactAtHighSpeed = true;
+                shooter.velocityHold("High", .1); // initial spinup
                 shotCount = 0;
                 sorter.door("Open");
                 sorter.update();
                 sorter.wiggleUp();
+                intake.setPower(0);
+                intake.update();
 
                 shooter.setVelocity("High");
                 shooter.closeBlocker(); // do not shoot until velocity is reached
 
-                intake.setPower(0);
-                intake.update();
+
 
                 delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
                 delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
@@ -324,17 +362,18 @@ private Follower follower;
         if(gamepad1.xWasPressed() || gamepad1.xWasReleased()){
             //Shoot Artifacts (everything that is in the stack)
             if(!sorter.isEmpty()){
-                shootArtifactAtLowSpeed = true;
+                shootArtifactAtHighSpeed = true;
+                shooter.velocityHold("Low", .1); // Initial Spinup
                 shotCount = 0;
                 sorter.door("Open");
                 sorter.update();
                 sorter.wiggleUp();
+                intake.setPower(0);
+                intake.update();
 
                 shooter.setVelocity("Low");
                 shooter.closeBlocker(); // do not shoot until velocity is reached
 
-                intake.setPower(0);
-                intake.update();
 
                 delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
                 delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
@@ -361,13 +400,13 @@ private Follower follower;
         }
 
         stack = sorter.getArtifactStack();
-        telemetry.addData("Artifacts: ", '{' + stack[0] + " | " + stack[1] + " | " + stack[2] + '}');
-        telemetry.addData("SorterFull: ", sorter.isFull());
+//        telemetry.addData("IsAutomatedDriveMode: ", "" + automatedDrive);
+//        telemetry.addData("SorterFull: ", sorter.isFull());
 
-        telemetry.addData("ShooterFrontVel d/s: ", shooter.getShooterFrontVel());
-        telemetry.addData("ShooterBackVel d/s: ", shooter.getShooterFrontVel());
+        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
+        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
 
-        telemetry.addData("SorterPos: ", sorter.getPosition());
+//        telemetry.addData("SorterPos: ", sorter.getPosition());
 
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());

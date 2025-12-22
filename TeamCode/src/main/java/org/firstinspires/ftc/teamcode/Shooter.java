@@ -18,9 +18,9 @@ public class Shooter {
     private DcMotorEx shooterFront;
     private DcMotorEx shooterBack;
     private Servo blocker;
-    private PIDFCoefficients shooterFrontPIDF;
-    private PIDFCoefficients shooterBackPIDF;
-    private final double[] shooterVel = {1200, 1700, 1200, 1800}; // In Deg/Sec: Front Low, Front High, Back Low, Back High
+    private PIDFCoefficients lowShooterFrontPIDF, highShooterFrontPIDF;
+    private PIDFCoefficients lowShooterBackPIDF, highShooterBackPIDF;
+    private final double[] shooterVel = {1200, 1750, 1200, 1600, 600, 600}; // In Deg/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back
 
     //Constructor
     public Shooter(HardwareMap map) {
@@ -29,19 +29,24 @@ public class Shooter {
         shooterBack = map.get(DcMotorEx.class, "shooterBackMotor");
         blocker = map.get(Servo.class, "shooterBlocker");
 
-        shooterFront.setDirection(DcMotorEx.Direction.FORWARD);
+        shooterFront.setDirection(DcMotorEx.Direction.REVERSE);
         shooterFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        //shooterFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         shooterFront.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-        shooterBack.setDirection(DcMotorEx.Direction.REVERSE);
-        shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        shooterBack.setDirection(DcMotorEx.Direction.FORWARD);
+        //shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        shooterBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         shooterBack.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-        shooterFrontPIDF = new PIDFCoefficients(50, 0, 0, 25);
-        shooterBackPIDF = new PIDFCoefficients(40, 0, 0, 20);
+        lowShooterFrontPIDF = new PIDFCoefficients(46.601, 0, 0, 15.106);
+        lowShooterBackPIDF = new PIDFCoefficients(21.1, 0, 0, 210);
 
-        shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
-        shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
+        highShooterFrontPIDF = new PIDFCoefficients(15.106, 0, 0, 46.601);
+        highShooterBackPIDF = new PIDFCoefficients(210, 0, 0, 25.1);
+
+        shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, highShooterFrontPIDF);
+        shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, highShooterBackPIDF);
     }
 
     public void setPower(double backPower, double frontPower) {
@@ -49,13 +54,58 @@ public class Shooter {
         shooterBack.setPower(backPower);
     }
 
+    public void velocityHold(String level, double rate){
+        shooterFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+        shooterBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+
+        switch (level) {
+            case "High":
+                while(shooterBack.getVelocity() < shooterVel[3] && shooterFront.getVelocity() < shooterVel[1] && shooterFront.getPower() != 1 && shooterBack.getPower() != 1){
+                    shooterBack.setPower(shooterBack.getPower() + rate);
+                    shooterFront.setPower(shooterFront.getPower() + rate);
+                }
+                break;
+
+            case "Low":
+                while(shooterBack.getVelocity() < shooterVel[2] && shooterFront.getVelocity() < shooterVel[0] && shooterFront.getPower() != 1 && shooterBack.getPower() != 1){
+                    shooterBack.setPower(shooterBack.getPower() + rate);
+                    shooterFront.setPower(shooterFront.getPower() + rate);
+                }
+                break;
+        }
+
+        shooterFront.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+        shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
+    }
+
     public void setVelocity(String level) {
-        if (level.equals("Low")) {
-            shooterFront.setVelocity(shooterVel[0]);
-            shooterBack.setVelocity(shooterVel[2]);
-        } else {
-            shooterFront.setVelocity(shooterVel[1]);
-            shooterBack.setVelocity(shooterVel[3]);
+        switch (level) {
+            case "Low":
+                  //setPower(0.85, 0.85);
+//                shooterBack.setPower(1);
+                shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, lowShooterFrontPIDF);
+                shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, lowShooterBackPIDF);
+                shooterFront.setVelocity(shooterVel[0]);
+                shooterBack.setVelocity(shooterVel[2]);
+                break;
+            case "High":
+                  //setPower(1,1);
+//                shooterBack.setPower(1);
+//                shoo?terFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, highShooterFrontPIDF);
+                shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, highShooterBackPIDF);
+                shooterFront.setVelocity(shooterVel[1]);
+                shooterBack.setVelocity(shooterVel[3]);
+                break;
+            case "Idle": // idle vel
+                  shooterFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+                  shooterBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
+//                  shooterBack.setPower(0.35);
+                  setPower(0.35, 0.35);
+//                shooterFront.setVelocity(shooterVel[4]);
+//                shooterBack.setVelocity(shooterVel[5]);
+//                shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, highShooterFrontPIDF);
+//                shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, highShooterBackPIDF);
+                break;
         }
     }
 
@@ -75,16 +125,20 @@ public class Shooter {
         return (shooterBack.getVelocity()); // Returns in deg/sec
     }
     public boolean isAtHighVel() {
-        return ((getShooterFrontVel() >= shooterVel[1]) && (getShooterBackVel() >= shooterVel[3]));
+        //return true;
+        return ((getShooterFrontVel() >= (shooterVel[1]-50)) && (getShooterBackVel() >= (shooterVel[3]-50)));
     }
 
     public boolean isAtLowVel() {
-        return ((getShooterFrontVel() >= shooterVel[0]) && (getShooterBackVel() >= shooterVel[2]));
+        //return true;
+        return ((getShooterFrontVel() >= (shooterVel[0]-50)) && (getShooterBackVel() >= (shooterVel[2]-50)));
     }
 
     public DcMotorEx getShooterFrontMotor(){ return shooterFront;}
     public DcMotorEx getShooterBackMotor() { return shooterBack;}
 
-    public PIDFCoefficients getShooterFrontPIDF(){ return shooterFrontPIDF;}
-    public PIDFCoefficients getShooterBackPIDF() { return shooterBackPIDF;}
+    public PIDFCoefficients getHighShooterFrontPIDF(){ return highShooterFrontPIDF;}
+    public PIDFCoefficients getHighShooterBackPIDF() { return highShooterBackPIDF;}
+    public PIDFCoefficients getLowShooterFrontPIDF(){ return lowShooterFrontPIDF;}
+    public PIDFCoefficients getLowShooterBackPIDF() { return lowShooterBackPIDF;}
 }

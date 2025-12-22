@@ -84,15 +84,16 @@ public class Sorter {
         //Note: 30 Samples Used for Statistical Significance of Mean by Central Limit Th. of Statistics
 
         boolean artifactPresent = false;
+        int sampleSize = 5;
 
         //Determine if Artifact Present
         double numberPositiveDetects = 0;
-        for(int i = 0; i < 30; i++){
+        for(int i = 0; i < sampleSize; i++){
             if(detector.red() > 150 || detector.green() > 150 || detector.blue() > 150){
                 numberPositiveDetects++;
             }
         }
-        artifactPresent = numberPositiveDetects > 15;
+        artifactPresent = numberPositiveDetects > (int) (sampleSize/2);
         if(artifactPresent){
             String[] tempArray = (String []) state.get(1);
             tempArray[2] = "Ball";

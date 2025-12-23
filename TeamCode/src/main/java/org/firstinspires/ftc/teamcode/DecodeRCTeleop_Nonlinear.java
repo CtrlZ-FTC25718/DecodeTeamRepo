@@ -30,6 +30,7 @@ private Follower follower;
     private TelemetryManager telemetryM;
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.25;
+    private double normalModeMultiplier = 0.75;
 
     private int shotCount;
 
@@ -97,9 +98,10 @@ private Follower follower;
             //Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
-                //Log.d("Shooter2", "Sorter Not empty");
-                if  (timerExpired(4, 1000)) {
-                    //Log.d("Shooter3", "Sorter Timer Expired");
+                Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
+                if  (timerExpired(4, 750)) {
+                    Log.d("Shooter3", "Sorter Timer Expired");
+
                     if (sorter.hasDoorOpened()) {
                         //Log.d("Shooter4", "Sorter Door Is Open");
 
@@ -109,22 +111,22 @@ private Follower follower;
                             //Log.d("Shooter5", "Long shot active");
                             if (shooter.isAtHighVel()) {
                                 //shooter.velocityHold(0.1);
-                                //Log.d("Shooter5p1", "Shooter reached high Vel");
+                                Log.d("Shooter5p1", "Shooter reached high Vel");
 
-                                shooter.openBlocker();
-
-                                stack = sorter.getArtifactStack();
-                                //Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-                                sorter.registerShot();
-                                stack = sorter.getArtifactStack();
-                                //Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-                                shotCount++;
-                                if (!sorter.isEmpty()) {
+                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
                                     sorter.shift(1);
                                     sorter.update();
                                     //Log.d("ShooterShift", "Sorter Has Shifted");
                                 }
+                                shooter.openBlocker();
+
+                                stack = sorter.getArtifactStack();
+                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                sorter.registerShot();
+                                stack = sorter.getArtifactStack();
+                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+                                shotCount++;
 
                                 stack = sorter.getArtifactStack();
                                 //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
@@ -145,6 +147,11 @@ private Follower follower;
                             if (shooter.isAtLowVel()) {
                                 //Log.d("Shooter5p2", "Shooter reached low Vel");
 
+                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
+                                    sorter.shift(1);
+                                    sorter.update();
+                                    //Log.d("ShooterShift", "Sorter Has Shifted");
+                                }
                                 shooter.openBlocker();
 
                                 stack = sorter.getArtifactStack();
@@ -154,11 +161,6 @@ private Follower follower;
                                 //Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
                                 shotCount++;
-                                if (!sorter.isEmpty()) {
-                                    sorter.shift(1);
-                                    sorter.update();
-                                    //Log.d("ShooterShift", "Sorter Has Shifted");
-                                }
 
                                 stack = sorter.getArtifactStack();
                                 //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
@@ -221,56 +223,10 @@ private Follower follower;
         }
     }
 
-    /** This method is called once at the start of the OpMode. **/
-    @Override
-    public void start() {
-        //The parameter controls whether the Follower should use break mode on the motors (using it is recommended).
-        //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
-        //If you don't pass anything in, it uses the default (false)
-        follower.startTeleopDrive();
-        shooter.setVelocity("Idle");
-    }
-
-    /** This is the main loop of the opmode and runs continuously after play **/
-    @Override
-    public void loop() {
-
-        /* Update Pedro to move the robot based on:
-        - Forward/Backward Movement: -gamepad1.left_stick_y
-        - Left/Right Movement: -gamepad1.left_stick_x
-        - Turn Left/Right Movement: -gamepad1.right_stick_x
-        - Robot-Centric Mode: true
-        */
-        //Call this once per loop
-        follower.update();
-        telemetryM.update();
-        telemetry.update();
-
-        if (!automatedDrive) {
-            //Make the last parameter false for field-centric
-            //In case the drivers want to use a "slowMode" you can scale the vectors
-            //This is the normal version to use in the TeleOp
-            if (!slowMode) follower.setTeleOpDrive(
-                    -gamepad1.right_stick_y,
-                    -gamepad1.right_stick_x,
-                    -gamepad1.left_stick_x,
-                    true // Robot Centric
-            );
-                //This is how it looks with slowMode on
-            else follower.setTeleOpDrive(
-                    -gamepad1.right_stick_y * slowModeMultiplier,
-                    -gamepad1.right_stick_x * slowModeMultiplier,
-                    -gamepad1.left_stick_x * slowModeMultiplier,
-                    true // Robot Centric
-            );
-        }
-
-        // Set RGB Indicator Color by ball count
-        sorter.setIndicatorLightColor();
-
+    public void manageIntake(){
         //Set Intake Direction Based Upon Space:
         if(sorter.isFull()){
-            if (timerExpired(0,3000)) {
+            if (timerExpired(0,5000)) {
                 intake.setPower(0); //Set intake to reject
                 //shooter.setPower(1, 1);
                 intake.update();
@@ -282,6 +238,9 @@ private Follower follower;
             delayTimer[0] = 0; // Reset intake reverse timer
         }
 
+    }
+
+    public void manageSorter(){
         if(sorter.isFull() && delayTimer[0] == 0){
             delayTimer[0] = timer.milliseconds(); // Start a new timer to stop the intake and reject artifacts
         }
@@ -317,13 +276,71 @@ private Follower follower;
             }
         }
 
+    }
+    /** This method is called once at the start of the OpMode. **/
+    @Override
+    public void start() {
+        //The parameter controls whether the Follower should use break mode on the motors (using it is recommended).
+        //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
+        //If you don't pass anything in, it uses the default (false)
+        follower.startTeleopDrive();
+        shooter.setVelocity("Idle");
+    }
+
+    /** This is the main loop of the opmode and runs continuously after play **/
+    @Override
+    public void loop() {
+
+        /* Update Pedro to move the robot based on:
+        - Forward/Backward Movement: -gamepad1.left_stick_y
+        - Left/Right Movement: -gamepad1.left_stick_x
+        - Turn Left/Right Movement: -gamepad1.right_stick_x
+        - Robot-Centric Mode: true
+        */
+        //Call this once per loop
+        follower.update();
+        telemetryM.update();
+        telemetry.update();
+
+        if (!automatedDrive) {
+            //Make the last parameter false for field-centric
+            //In case the drivers want to use a "slowMode" you can scale the vectors
+            //This is the normal version to use in the TeleOp
+
+            //This is how it looks with slowMode on
+            if (!slowMode) follower.setTeleOpDrive(
+                    -gamepad1.right_stick_y,
+                    -gamepad1.right_stick_x,
+                    -gamepad1.left_stick_x,
+                    true // Robot Centric
+            );
+            else follower.setTeleOpDrive(
+                    -gamepad1.right_stick_y * slowModeMultiplier,
+                    -gamepad1.right_stick_x * slowModeMultiplier,
+                    -gamepad1.left_stick_x * slowModeMultiplier,
+                    true // Robot Centric
+            );
+
+
+        }
+
+        // Set RGB Indicator Color by ball count
+        sorter.setIndicatorLightColor();
+
+        // Start or Stop intake based upon Sorter State
+        manageIntake();
+
+        // Manage number of balls in the sorter and determine when to rotate ball to shooter position
+        manageSorter();
+
         // Shoot Artifact without holding the thread if triggered
         if (shootArtifactAtHighSpeed || shootArtifactAtLowSpeed){
             shootArtifact();
         }
 
-
-        if (gamepad1.a) {
+        // Handle/Respond to button clicks
+        // Go to Long Shot artifact shooting position
+        if (gamepad1.a || gamepad1.aWasPressed()) {
             follower.followPath(pathChain.get());
             automatedDrive = true;
         }
@@ -352,8 +369,6 @@ private Follower follower;
                 shooter.setVelocity("High");
                 shooter.closeBlocker(); // do not shoot until velocity is reached
 
-
-
                 delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
                 delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
             }
@@ -373,7 +388,6 @@ private Follower follower;
 
                 shooter.setVelocity("Low");
                 shooter.closeBlocker(); // do not shoot until velocity is reached
-
 
                 delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
                 delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting

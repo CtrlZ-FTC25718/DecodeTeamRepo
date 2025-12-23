@@ -36,18 +36,22 @@ public class ShooterPIDTuning extends OpMode {
     private DcMotorEx front;
     private DcMotorEx back;
 
-    private double highVelocity = 1800;
-    private double lowVelocity = 1000;
+    private double highVelocity = 1750;
+    private double lowVelocity = 1300;
 
     private double targetVelocity = lowVelocity;
 
     private double currFrontTargetVelocity = lowVelocity;
     private double currBackTargetVelocity = lowVelocity;
 
-    private double frontF = 15.106;
-    private double frontP = 46.601;
-    private double backF = 21.1;
-    private double backP = 210.0;
+    private double frontF = 16.118;//15.106
+    private double frontP = 400;//46.601, then 300
+    private double frontI = 50;
+    private double frontD = 0;
+    private double backF = 20;
+    private double backP = 800;
+    private double backI = 70;
+    private double backD = 70;
 
     private PIDFCoefficients frontPIDF;
     private PIDFCoefficients backPIDF;
@@ -65,8 +69,8 @@ public class ShooterPIDTuning extends OpMode {
         front = shooter.getShooterFrontMotor();
         back = shooter.getShooterBackMotor();
 
-        frontPIDF = new PIDFCoefficients(frontP,0,0,frontF);
-        backPIDF = new PIDFCoefficients(backP,0,0,backF);
+        frontPIDF = new PIDFCoefficients(frontP,frontI,frontD,frontF);
+        backPIDF = new PIDFCoefficients(backP,backI,backD,backF);
 
         front.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, frontPIDF);
         back.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, backPIDF);
@@ -107,6 +111,8 @@ public class ShooterPIDTuning extends OpMode {
             }
         }
 
+        // Front
+
         if(gamepad1.bWasPressed() || gamepad2.bWasPressed()){
             stepIndex = (stepIndex+1) % stepSizes.length;
         }
@@ -123,6 +129,22 @@ public class ShooterPIDTuning extends OpMode {
         if (gamepad1.dpadDownWasPressed()){
             frontF -= stepSizes[stepIndex];
         }
+        if (gamepad1.left_trigger>0){
+            frontI -= stepSizes[stepIndex];
+        }
+        if (gamepad1.right_trigger>0){
+            frontI += stepSizes[stepIndex];
+        }
+        if (gamepad1.leftBumperWasPressed()){
+            frontD -= stepSizes[stepIndex];
+        }
+        if (gamepad1.rightBumperWasPressed()){
+            frontD += stepSizes[stepIndex];
+        }
+
+
+
+        // Back
 
         if (gamepad2.dpadLeftWasPressed()){
             backP -= stepSizes[stepIndex];
@@ -136,10 +158,30 @@ public class ShooterPIDTuning extends OpMode {
         if (gamepad2.dpadDownWasPressed()){
             backF -= stepSizes[stepIndex];
         }
+
+        if (gamepad2.left_trigger>0){
+            backI -= stepSizes[stepIndex];
+        }
+        if (gamepad2.right_trigger>0){
+            backI += stepSizes[stepIndex];
+        }
+        if (gamepad2.leftBumperWasPressed()){
+            backD -= stepSizes[stepIndex];
+        }
+        if (gamepad2.rightBumperWasPressed()){
+            backD += stepSizes[stepIndex];
+        }
+
         frontPIDF.p = frontP;
         frontPIDF.f = frontF;
+        frontPIDF.i = frontI;
+        frontPIDF.d = frontD;
+
         backPIDF.p = backP;
         backPIDF.f = backF;
+        backPIDF.i = backI;
+        backPIDF.d = backD;
+
 
         front.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,frontPIDF);
         back.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER,backPIDF);
@@ -154,18 +196,22 @@ public class ShooterPIDTuning extends OpMode {
         double backError = currBackTargetVelocity - backCurrVelocity;
 
         telemetry.addData("StepSize : ", stepSizes[stepIndex]);
-        telemetry.addLine("***************************************************");
         telemetry.addData("Target Velocity : ", targetVelocity);
+        telemetry.addLine("***************************************************");
         telemetry.addData("Current Front Velocity : ", frontCurrVelocity);
         telemetry.addData("Current Front Error : ", frontError);
         telemetry.addLine("-------------------------------------------");
         telemetry.addData("Current Back Velocity : ", backCurrVelocity);
         telemetry.addData("Current Back Error : ", backError);
         telemetry.addLine("^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^");
-        telemetry.addData("Tuning Front P : ", "%.4f (D-Pad U/D)", frontP);
-        telemetry.addData("Tuning Front F : ", "%.4f (D-Pad L/R)", frontF);
-        telemetry.addData("Tuning Back P : ", "%.4f (D-Pad U/D)", backP);
-        telemetry.addData("Tuning Back F : ", "%.4f (D-Pad L/R)", backF);
+        telemetry.addData("Tuning Front P : ", "%.4f", frontP);
+        telemetry.addData("Tuning Front I : ", "%.4f", frontI);
+        telemetry.addData("Tuning Front D : ", "%.4f", frontD);
+        telemetry.addData("Tuning Front F : ", "%.4f", frontF);
+        telemetry.addData("Tuning Back P : ", "%.4f", backP);
+        telemetry.addData("Tuning Back I : ", "%.4f", backI);
+        telemetry.addData("Tuning Back D : ", "%.4f", backD);
+        telemetry.addData("Tuning Back F : ", "%.4f", backF);
     }
 
     /** We do not use this because everything automatically should disable **/

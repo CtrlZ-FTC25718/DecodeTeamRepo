@@ -27,12 +27,12 @@ public class Constants {
             .useSecondaryHeadingPIDF(true)
             .useSecondaryDrivePIDF(true)
             .centripetalScaling(0.0007)
-            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0.05))
-            .headingPIDFCoefficients(new PIDFCoefficients(1, 0, 0.005, 0.01))
-            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.005, 0, 0.0005, 0.6, 0))
-            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.15, 0, 0.02, 0.05))
-            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(1.5, 0, 0.003, 0))
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(0.05, 0, 0.001, 0.6, 0));
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0.01))
+            .headingPIDFCoefficients(new PIDFCoefficients(1.25, 0, 0.005, 0.01))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.0075, 0, 0.0005, 0.6, 0))
+            .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.2, 0, 0.02, 0.01))
+            .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.75, 0, 0.003, 0))
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(100, 0, 0.001, 0.6, 0));
 
     public static DriveEncoderConstants robotConstants = new DriveEncoderConstants()
             .robotWidth(14.2)

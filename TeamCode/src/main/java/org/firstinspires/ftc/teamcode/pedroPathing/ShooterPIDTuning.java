@@ -36,22 +36,22 @@ public class ShooterPIDTuning extends OpMode {
     private DcMotorEx front;
     private DcMotorEx back;
 
-    private double highVelocity = 1750;
-    private double lowVelocity = 1300;
+    private double highVelocity = 1800;
+    private double lowVelocity = 800;
 
     private double targetVelocity = lowVelocity;
 
     private double currFrontTargetVelocity = lowVelocity;
     private double currBackTargetVelocity = lowVelocity;
 
-    private double frontF = 16.118;//15.106
-    private double frontP = 400;//46.601, then 300
-    private double frontI = 50;
+    private double frontF = 16.4;//15.106
+    private double frontP = 50;//46.601, then 300
+    private double frontI = 0;
     private double frontD = 0;
-    private double backF = 20;
-    private double backP = 800;
-    private double backI = 70;
-    private double backD = 70;
+    private double backF = 20.6;
+    private double backP = 42;
+    private double backI = 0;
+    private double backD = 0;
 
     private PIDFCoefficients frontPIDF;
     private PIDFCoefficients backPIDF;

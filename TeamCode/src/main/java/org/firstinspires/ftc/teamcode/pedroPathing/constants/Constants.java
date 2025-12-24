@@ -50,7 +50,8 @@ public class Constants {
 
             .xVelocity(62.922) //63.3, 62.9, 63.3, 62.09, 63.02
             .yVelocity(50.732) //50.73, 50.4, 50.91, 50.66, 50.97
-            .useVoltageCompensation(true);
+            .useVoltageCompensation(true)
+            .useBrakeModeInTeleOp(true);
 
 
     public static PinpointConstants localizerConstants = new PinpointConstants()

@@ -13,6 +13,7 @@ public class Intake {
     private static DcMotor intakeMotor;
     //State
     private double power;
+    private boolean intakeOn;
 
     //Constructor
     public Intake(HardwareMap map){
@@ -22,8 +23,16 @@ public class Intake {
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         power = 0.0; //Default State: Not Running
+
     }
 
+    public boolean getIntakeState(){
+        return intakeOn;
+    }
+
+    public void setIntakeState(boolean newState){
+        intakeOn = newState;
+    }
     public void setPower(double inputPower){
         power = inputPower;
     }
@@ -33,7 +42,13 @@ public class Intake {
     }
 
     public void update(){
-        intakeMotor.setPower(power);
+        if(intakeOn){
+            intakeMotor.setPower(1.0);
+        }
+
+        else{
+            intakeMotor.setPower(0.0);
+        }
     }
 
 }

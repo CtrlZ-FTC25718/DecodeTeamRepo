@@ -19,7 +19,11 @@ public class Shooter {
     private DcMotorEx shooterBack;
     private Servo blocker;
     private PIDFCoefficients shooterBackPIDF, shooterFrontPIDF;
-    private final double[] shooterVel = {1500, 1750, 1500, 1500, 0, 0}; // In Deg/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back
+
+    // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
+
+    private final double[] shooterVel = {1400, 1750, 1350, 1650, 0, 0, 0, 0};
+    private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     //Constructor
     public Shooter(HardwareMap map) {
@@ -37,7 +41,8 @@ public class Shooter {
         shooterBack.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
         shooterFrontPIDF = new PIDFCoefficients(50, 0,0, 16.4);
-        shooterBackPIDF = new PIDFCoefficients(800, 70, 70, 20);
+        //shooterBackPIDF = new PIDFCoefficients(800, 70, 70, 20);
+        shooterBackPIDF =  new PIDFCoefficients(55,0,0,25);
 
         shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
         shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
@@ -49,51 +54,67 @@ public class Shooter {
     }
 
     // This function accepts the robot point and shooter target point and outputs shooter angular velocity in tps and the heading the robot should turn to
-    public double[] computeProjectileMotion(double global_x, double global_y, double target_x, double target_y) {
+    public double[] computeCustomShotParameters(double global_x, double global_y, String teamColor) {
+
+        double target_x = 0, target_y = 0;
+
+        // Determine target_x and target_y based upon teamColor
+        switch(teamColor){
+            case "Red":
+                target_x = targetPos[0];
+                target_y = targetPos[1];
+                break;
+
+            case "Blue":
+                target_x = targetPos[2];
+                target_y = targetPos[3];
+                break;
+        }
 
         //Compute distance to target
-        double delta = Math.sqrt(Math.pow((target_x - global_x), 2) + Math.pow((target_y - global_y), 2));
+        double delta = Math.sqrt(Math.pow((target_x - global_x), 2) + Math.pow((target_y - global_y), 2)) / 12; // in ft
 
         //Compute launch angle
-        double theta = Math.toRadians(58);
+        double theta = Math.toRadians(55); // This 55 deg is fixed for our robot based upon shooter positioning
 
         //Compute exit velocity magnitude
         double exitVel = Math.sqrt((-16 * Math.pow(delta, 2)) / ((3.5 - delta * Math.tan(theta) - 0.5) * (Math.pow(Math.cos(theta), 2))));
 
         //Compute shooter target speed
-        double realOmega = (2 / 0.23622) * (28 / (2 * Math.PI)) * (1 / .405) * exitVel;
+        double realOmega = (2 / 0.23622) * (28 / (2 * Math.PI)) * (1 /.46) * exitVel; // shot energy transfer efficiency is an estimate of 45%
 
         //Compute the angle the robot should turn to
         double psi = Math.toDegrees(Math.atan2(target_y - global_y, target_x - global_x));
 
         //Output results
-        return new double[]{realOmega, psi};
+        return new double[]{realOmega, psi}; // in tics/sec and deg
     }
 
     // Use velocityHold for initial spin-up of shooter
-    public void velocityHold(String level, double rate, double customBackVel, double customFrontVel) {
+    public void velocityHold(String level, double rate) {
 
         // Not using PIDs for velocity hold as it is brute force and fast
         shooterBack.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
         shooterFront.setMode(DcMotorEx.RunMode.RUN_WITHOUT_ENCODER);
 
+        // Giving 50 Tics/sec tollerance
+
         switch (level) {
             case "High":
-                while (shooterBack.getVelocity() < shooterVel[3] && shooterFront.getVelocity() < shooterVel[1] && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                while (shooterBack.getVelocity() < (shooterVel[3]-50) && shooterFront.getVelocity() < (shooterVel[1]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
                     shooterBack.setPower(shooterBack.getPower() + rate);
                     shooterFront.setPower(shooterFront.getPower() + rate);
                 }
                 break;
 
             case "Low":
-                while (shooterBack.getVelocity() < shooterVel[2] && shooterFront.getVelocity() < shooterVel[0] && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                while (shooterBack.getVelocity() < (shooterVel[2]-50) && shooterFront.getVelocity() < (shooterVel[0]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
                     shooterBack.setPower(shooterBack.getPower() + rate);
                     shooterFront.setPower(shooterFront.getPower() + rate);
                 }
                 break;
-
             case "Custom":
-                while (shooterBack.getVelocity() < customBackVel && shooterFront.getVelocity() < customFrontVel && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                while (shooterBack.getVelocity() < (shooterVel[7]-50) && shooterFront.getVelocity() < (shooterVel[6]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
                     shooterBack.setPower(shooterBack.getPower() + rate);
                     shooterFront.setPower(shooterFront.getPower() + rate);
                 }
@@ -104,38 +125,40 @@ public class Shooter {
         shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
     }
 
-    public void setVelocity(String level, double customBackVel, double customFrontVel) {
+    public void setVelocity(String level) {
         switch (level) {
-            // Ignore customBackVel and customFrontVel for Low, High, and Idle
             case "Low":
                 // Use PID for Low velocity shots (close shots)
-//                shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
-//                shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
                 shooterFront.setVelocity(shooterVel[0]);
                 shooterBack.setVelocity(shooterVel[2]);
                 break;
 
             case "High":
-                // PID will fall short for High velocity shots - go max power (long shots)
-//                shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
-//                shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
-                shooterBack.setPower(1.0);
-                shooterFront.setPower(1.0);
+
+                shooterBack.setVelocity(shooterVel[3]);
+                shooterFront.setVelocity(shooterVel[1]);
+                //shooterBack.setPower(1.0);
+                //shooterFront.setPower(1.0);
                 break;
 
             case "Idle": // idle vel
-//                shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
-//                shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
-                shooterBack.setVelocity(shooterVel[4]);
-                shooterFront.setVelocity(shooterVel[5]);
+                shooterBack.setVelocity(shooterVel[5]);
+                shooterFront.setVelocity(shooterVel[4]);
                 break;
 
-            case "Custom": // Use custom Velocity
-//                shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
-//                shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
-                shooterBack.setVelocity(customBackVel);
-                shooterFront.setVelocity(customFrontVel);
+            case "Custom": // customVel
+                shooterBack.setVelocity(shooterVel[7]);
+                shooterFront.setVelocity(shooterVel[6]);
         }
+    }
+
+    public void updateCustomVelocity(double customBackVel, double customFrontVel){
+        shooterVel[6] = customFrontVel;
+        shooterVel[7] = customBackVel;
+    }
+
+    public double[] getCustomVelocities(){
+        return new double[]{shooterVel[6], shooterVel[7]};
     }
 
     public void openBlocker() {
@@ -156,18 +179,16 @@ public class Shooter {
 
     public boolean isAtHighVel() {
         //return true;
-        // Give 50 tics/sec wiggle room
         return ((getShooterFrontVel() >= (shooterVel[1] - 50)) && (getShooterBackVel() >= (shooterVel[3] - 50)));
     }
 
     public boolean isAtLowVel() {
         //return true;
-        // Give 50 tics/sec wiggle room
         return ((getShooterFrontVel() >= (shooterVel[0] - 50)) && (getShooterBackVel() >= (shooterVel[2] - 50)));
     }
 
-    public boolean isAtCustomVel(double customBackVel, double customFrontVel) {
-        return ((getShooterFrontVel() >= customFrontVel) && (getShooterBackVel() >= customBackVel));
+    public boolean isAtCustomVel() {
+        return ((getShooterFrontVel() >= shooterVel[6] - 50) && (getShooterBackVel() >= shooterVel[7] - 50));
     }
 
     public DcMotorEx getShooterFrontMotor() {

@@ -30,9 +30,19 @@ public class Constants {
             .translationalPIDFCoefficients(new PIDFCoefficients(0.1, 0, 0.01, 0.01))
             .headingPIDFCoefficients(new PIDFCoefficients(1.25, 0, 0.005, 0.01))
             .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.0075, 0, 0.0005, 0.6, 0))
+            /*.useSecondaryTranslationalPIDF(false)
+            .useSecondaryDrivePIDF(false)
+            .useSecondaryHeadingPIDF(false)
+            .centripetalScaling(.0007)
+            .translationalPIDFCoefficients(new PIDFCoefficients(0.9, 0.1, 0, 0))
+            .headingPIDFCoefficients(new PIDFCoefficients(0.9, 0.1, 0, 0))
+            .drivePIDFCoefficients(new FilteredPIDFCoefficients(0.9, 0.25, 0, 0.6, 0))*/
             .secondaryTranslationalPIDFCoefficients(new PIDFCoefficients(0.2, 0, 0.02, 0.01))
             .secondaryHeadingPIDFCoefficients(new PIDFCoefficients(2.75, 0, 0.003, 0))
-            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(100, 0, 0.001, 0.6, 0));
+            .secondaryDrivePIDFCoefficients(new FilteredPIDFCoefficients(100, 0, 0.001, 0.6, 0))
+            .headingPIDFSwitch(0.07)
+            .translationalPIDFSwitch(5);
+
 
     public static DriveEncoderConstants robotConstants = new DriveEncoderConstants()
             .robotWidth(14.2)
@@ -65,8 +75,8 @@ public class Constants {
             .strafeEncoderDirection(com.qualcomm.hardware.gobilda.GoBildaPinpointDriver.EncoderDirection.REVERSED);
 
     public static PathConstraints pathConstraints = new PathConstraints(
-            0.8,
-            50,
+            0.85,
+            250,
             1.75,
             15
     );

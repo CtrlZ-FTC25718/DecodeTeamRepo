@@ -1,6 +1,8 @@
 package org.firstinspires.ftc.teamcode;
 
 //Imports
+import android.util.Log;
+
 import com.qualcomm.robotcore.hardware.ColorSensor;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -8,6 +10,7 @@ import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.PIDFCoefficients;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.VoltageSensor;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.internal.camera.delegating.DelegatingCaptureSequence;
@@ -20,10 +23,14 @@ public class Shooter {
     private Servo blocker;
     private PIDFCoefficients shooterBackPIDF, shooterFrontPIDF;
 
+    private VoltageSensor voltmeter;
+
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1400, 1750, 1350, 1650, 0, 0, 0, 0};
+    private final double[] shooterVel = {1400, 1750, 1350, 1600, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
+
+    private double robotEnergy;
 
     //Constructor
     public Shooter(HardwareMap map) {
@@ -46,6 +53,13 @@ public class Shooter {
 
         shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
         shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
+
+        voltmeter =  map.voltageSensor.iterator().next();
+    }
+
+    public void computeEnergy(){
+        robotEnergy = Math.pow(12.9/voltmeter.getVoltage(), 1); // robotEnergy is a ratio
+        //Log.d("Voltage Ratio", "Robot Energy" + robotEnergy);
     }
 
     public void setPower(double backPower, double frontPower) {
@@ -81,13 +95,17 @@ public class Shooter {
         double exitVel = Math.sqrt((-16 * Math.pow(delta, 2)) / ((3.5 - delta * Math.tan(theta) - 0.5) * (Math.pow(Math.cos(theta), 2))));
 
         //Compute shooter target speed
-        double realOmega = (2 / 0.23622) * (28 / (2 * Math.PI)) * (1 /.46) * exitVel; // shot energy transfer efficiency is an estimate of 45%
+        double realOmega = (2 / 0.23622) * (28 / (2 * Math.PI)) * (1 / 0.48) * exitVel; // shot energy transfer efficiency is an estimate of 45%
 
         //Compute the angle the robot should turn to
         double psi = Math.toDegrees(Math.atan2(target_y - global_y, target_x - global_x));
 
+        //Compute Offset Pose:
+        double offsetAngle = Math.toDegrees(Math.atan(9/5)) + psi;
+        double xOffsetPos = Math.sqrt(Math.pow(9, 2) + Math.pow(5,2)) * Math.cos(Math.toRadians(offsetAngle)) + global_x;
+        double yOffsetPos = Math.sqrt(Math.pow(9, 2) + Math.pow(5,2)) * Math.sin(Math.toRadians(offsetAngle)) + global_y;
         //Output results
-        return new double[]{realOmega, psi}; // in tics/sec and deg
+        return new double[]{realOmega, psi, xOffsetPos, yOffsetPos}; // in tics/sec and deg
     }
 
     // Use velocityHold for initial spin-up of shooter
@@ -102,21 +120,23 @@ public class Shooter {
         switch (level) {
             case "High":
                 while (shooterBack.getVelocity() < (shooterVel[3]-50) && shooterFront.getVelocity() < (shooterVel[1]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
-                    shooterBack.setPower(shooterBack.getPower() + rate);
-                    shooterFront.setPower(shooterFront.getPower() + rate);
+                    shooterBack.setPower(robotEnergy * (shooterBack.getPower() + rate));
+                    shooterFront.setPower(robotEnergy * (shooterFront.getPower() + rate));
+//                    Log.d("Velocity Hold Target","High Velocity Hold - Waiting for Front to be " + shooterVel[1]);
+//                    Log.d("Velocity Hold Target","High Velocity Hold - Waiting for Back to be " + shooterVel[3]);
                 }
                 break;
 
             case "Low":
                 while (shooterBack.getVelocity() < (shooterVel[2]-50) && shooterFront.getVelocity() < (shooterVel[0]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
-                    shooterBack.setPower(shooterBack.getPower() + rate);
-                    shooterFront.setPower(shooterFront.getPower() + rate);
+                    shooterBack.setPower(robotEnergy * (shooterBack.getPower() + rate));
+                    shooterFront.setPower(robotEnergy * (shooterFront.getPower() + rate));
                 }
                 break;
             case "Custom":
                 while (shooterBack.getVelocity() < (shooterVel[7]-50) && shooterFront.getVelocity() < (shooterVel[6]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
-                    shooterBack.setPower(shooterBack.getPower() + rate);
-                    shooterFront.setPower(shooterFront.getPower() + rate);
+                    shooterBack.setPower(robotEnergy * (shooterBack.getPower() + rate));
+                    shooterFront.setPower(robotEnergy * (shooterFront.getPower() + rate));
                 }
                 break;
         }
@@ -188,7 +208,7 @@ public class Shooter {
     }
 
     public boolean isAtCustomVel() {
-        return ((getShooterFrontVel() >= shooterVel[6] - 50) && (getShooterBackVel() >= shooterVel[7] - 50));
+        return ((getShooterFrontVel() >= (shooterVel[6] - 50)) && (getShooterBackVel() >= (shooterVel[7] - 50)));
     }
 
     public DcMotorEx getShooterFrontMotor() {

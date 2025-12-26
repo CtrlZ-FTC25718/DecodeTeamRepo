@@ -176,6 +176,8 @@ public class Sorter {
         return (String[]) state.get(1);
     }
 
+    public void setArtifactStack(String[] stack) {state.set(1, stack);}
+
     public int getArtifactCount(){
         String[] stack = getArtifactStack();
         int count = 0;

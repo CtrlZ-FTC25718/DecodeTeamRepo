@@ -20,6 +20,10 @@ public class Sorter {
 
     //State
     private ArrayList<Object> state;
+
+    private final double doorOpenedPos = 0.2;
+
+    private final double doorClosedPos = 0.4;
     private static final double sorterZeroPos = 0.05; // was 0.115
 
     //Constructor
@@ -198,7 +202,7 @@ public class Sorter {
     }
 
     public boolean hasDoorOpened(){
-        if (doorServo.getPosition() < 0.2) {
+        if (doorServo.getPosition() < (doorOpenedPos + 0.02)) {
             // door has opened enough
             return true;
         }
@@ -209,7 +213,7 @@ public class Sorter {
     }
 
     public boolean hasDoorClosed(){
-        if (doorServo.getPosition() > 0.55) {
+        if (doorServo.getPosition() > (doorClosedPos - 0.02)) {
             // door has closed enough
             return true;
         }
@@ -225,7 +229,7 @@ public class Sorter {
         if (getArtifactCount() == 3){
             indicatorLight.setPosition(0.5);
         }
-        else if (getArtifactCount() ==2){
+        else if (getArtifactCount() == 2){
             indicatorLight.setPosition(0.555);
         }
         else if (getArtifactCount() == 1){
@@ -244,12 +248,11 @@ public class Sorter {
     //Enforce State
     public void update(){
         sorterServo.setPosition((double) state.get(0));
-
         if(state.get(2).equals("Opened")){
-            doorServo.setPosition(0.15);
+            doorServo.setPosition(doorOpenedPos);
         }
         else{
-            doorServo.setPosition(.6);
+            doorServo.setPosition(doorClosedPos);
         }
     }
 }

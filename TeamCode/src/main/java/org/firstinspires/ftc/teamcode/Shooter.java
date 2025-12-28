@@ -25,9 +25,11 @@ public class Shooter {
 
     private VoltageSensor voltmeter;
 
+    private final double idealVoltage = 13.1; // Full charge voltage on the battery
+
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1400, 1750, 1350, 1600, 0, 0, 0, 0};
+    private final double[] shooterVel = {1300, 1750, 1300, 1600, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     private double robotEnergy;
@@ -47,7 +49,7 @@ public class Shooter {
         shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         shooterBack.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
 
-        shooterFrontPIDF = new PIDFCoefficients(50, 0,0, 16.4);
+        shooterFrontPIDF = new PIDFCoefficients(50, 0,0, 20.4);
         //shooterBackPIDF = new PIDFCoefficients(800, 70, 70, 20);
         shooterBackPIDF =  new PIDFCoefficients(55,0,0,25);
 
@@ -58,7 +60,7 @@ public class Shooter {
     }
 
     public void computeEnergy(){
-        robotEnergy = Math.pow(12.9/voltmeter.getVoltage(), 1); // robotEnergy is a ratio
+        robotEnergy = Math.pow(idealVoltage/voltmeter.getVoltage(), 1); // robotEnergy is a ratio
         //Log.d("Voltage Ratio", "Robot Energy" + robotEnergy);
     }
 
@@ -186,7 +188,7 @@ public class Shooter {
     }
 
     public void closeBlocker() {
-        blocker.setPosition(0.3);
+        blocker.setPosition(0.4);
     }
 
     public double getShooterFrontVel() {

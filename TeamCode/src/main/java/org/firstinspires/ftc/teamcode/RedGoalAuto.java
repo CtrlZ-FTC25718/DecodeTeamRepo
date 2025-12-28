@@ -41,7 +41,7 @@ public class RedGoalAuto extends OpMode {
     private String teamColor; // Set to Red or Blue
 
     //Autonomous Variables
-    private Supplier<PathChain> closeShotPoint, firstCollectionChain_0, firstCollectionChain_1, firstCollectionChain_2, firstCollectionChain_3, collectionShotPoint, secondCollectionChain, customShotPathChain;
+    private Supplier<PathChain> closeShotPoint, firstCollectionChain_0, firstCollectionChain_1, secondCollectionChain_0, secondCollectionChain_1, customShotPathChain;
 
     private int pathState;
     private boolean shotParametersComputed;
@@ -53,7 +53,7 @@ public class RedGoalAuto extends OpMode {
         // set Team Color to Red or Blue - Should match with the teleOp Name
         teamColor = "Red";
         // Set Starting Pose
-        startingPose= new Pose(96,135, Math.toRadians(-90));; //See ExampleAuto to understand how to use this
+        startingPose= new Pose(111.5,135, Math.toRadians(-90));; //See ExampleAuto to understand how to use this
 
 
         follower = Constants.createFollower(hardwareMap);
@@ -101,19 +101,21 @@ public class RedGoalAuto extends OpMode {
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 83))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 84))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
+
         firstCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(108, 83))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(129, 84))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
-        firstCollectionChain_2 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(113, 83))))
+
+        secondCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 62))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
-        firstCollectionChain_3 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(125, 83))))
+        secondCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(127, 62))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
@@ -124,20 +126,6 @@ public class RedGoalAuto extends OpMode {
 //                .addPath(new Path(new BezierLine(follower::getPose, new Pose(135, 36))))
 //                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
 //                .build();
-
-        collectionShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 12))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(30), .8))
-                .build();
-
-        secondCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 60))))
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(110, 60))))
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(115, 60))))
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(135, 60))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
-                .build();
-
     }
 
 
@@ -447,8 +435,8 @@ public class RedGoalAuto extends OpMode {
             sorter.door("Open");
             sorter.update();
             sorter.wiggleUp();
-            intake.setIntakeState(false);
-            intake.update();
+            //intake.setIntakeState(false);
+            //intake.update();
 
             shooter.closeBlocker(); // do not shoot until velocity is reached
             shooter.setVelocity("Low");
@@ -482,7 +470,7 @@ public class RedGoalAuto extends OpMode {
         manageSorter();
 
         //Intake Control
-        manageIntake();
+        //manageIntake();
 
         // Set RGB Indicator Color by ball count
         sorter.setIndicatorLightColor();
@@ -521,13 +509,13 @@ public class RedGoalAuto extends OpMode {
                     this.toggleIntake();
                     follower.followPath(firstCollectionChain_0.get(), true);
                     pathState = 3;
-                    delayTimer[5] = timer.milliseconds();
+                    //delayTimer[5] = timer.milliseconds();
                     break;
                 }
 
             case 3:
                 if(!follower.isBusy()){
-                    follower.followPath(firstCollectionChain_3.get(), 0.4, true);
+                    follower.followPath(firstCollectionChain_1.get(), 0.3, true);
                     pathState = 4;
                     delayTimer[5] = timer.milliseconds();
                     break;
@@ -563,6 +551,49 @@ public class RedGoalAuto extends OpMode {
                     }
                     break;
                 }
+
+            case 6:
+                if(!follower.isBusy()) {
+                    follower.followPath(secondCollectionChain_0.get(), true);
+                    pathState = 7;
+                    //delayTimer[5] = timer.milliseconds();
+                    break;
+                }
+
+            case 7:
+                if(!follower.isBusy()) {
+                    follower.followPath(secondCollectionChain_1.get(), 0.4, true);
+                    pathState = 8;
+                    delayTimer[5] = timer.milliseconds();
+                    break;
+                }
+
+            case 8:
+                if (!follower.isBusy() && timerExpired(5,2000)) {
+                    shooter.setVelocity("Low");
+                    follower.followPath(closeShotPoint.get(), true);
+                    pathState = 9;
+                    shotParametersComputed = false;
+                    telemetry.addLine("pathState 0");
+                    break;
+                }
+
+            case 9:
+                telemetry.addLine("pathState 1");
+                if(!follower.isBusy()){
+                    if (!shootArtifactAtLowSpeed){
+                        telemetry.addLine("pathState 1: Calling CustomShot");
+                        this.closeShot();
+                    }
+                    if (!isShooting && !shootArtifactAtLowSpeed){
+                        pathState = 10;
+                    }
+                    break;
+                }
+
+
+
+
 
 
 //

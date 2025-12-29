@@ -309,7 +309,7 @@ private Follower follower;
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                 }
                 if(timerExpired(1, 100)){
-                    sorter.shift(2); //If ball has been taken in & sorter not full, shift to shooting pos [0]
+                    sorter.shift(1); //If ball has been taken in & sorter once (used to sort twice)
                     sorter.update();
                     delayTimer[1] = 0;
                     delayTimer[2] = timer.milliseconds();
@@ -320,6 +320,17 @@ private Follower follower;
 
     }
 
+    public void toggleIntake(){
+        intake.setIntakeState(!intake.getIntakeState());
+        intake.update();
+        // Handle Shooter Spin Up
+        if(intake.getIntakeState()){
+            shooter.setVelocity("Idle");
+        }
+        else {
+            shooter.setVelocity("Low");
+        }
+    }
     public void driveControl(){
         if (!automatedDrive) {
             //Make the last parameter false for field-centric

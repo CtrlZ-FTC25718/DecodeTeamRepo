@@ -115,7 +115,7 @@ public class RedGoalAuto extends OpMode {
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
         secondCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(127, 62))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(120, 62))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
@@ -347,9 +347,11 @@ public class RedGoalAuto extends OpMode {
 
                 if(delayTimer[1] == 0){
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
+                    toggleIntake();
                 }
                 if(timerExpired(1, 100)){
-                    sorter.shift(2); //If ball has been taken in & sorter not full, shift to shooting pos [0]
+                    toggleIntake();
+                    sorter.shift(1); //If ball has been taken in & sorter once, used to sort twice
                     sorter.update();
                     delayTimer[1] = 0;
                     delayTimer[2] = timer.milliseconds();
@@ -488,14 +490,11 @@ public class RedGoalAuto extends OpMode {
                 follower.followPath(closeShotPoint.get(), true);
                 pathState = 1;
                 shotParametersComputed = false;
-                telemetry.addLine("pathState 0");
                 break;
 
             case 1:
-                telemetry.addLine("pathState 1");
                 if(!follower.isBusy()) {
                     if (!shootArtifactAtLowSpeed) {
-                        telemetry.addLine("pathState 1: Calling CustomShot");
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed) {
@@ -509,13 +508,12 @@ public class RedGoalAuto extends OpMode {
                     this.toggleIntake();
                     follower.followPath(firstCollectionChain_0.get(), true);
                     pathState = 3;
-                    //delayTimer[5] = timer.milliseconds();
                     break;
                 }
 
             case 3:
                 if(!follower.isBusy()){
-                    follower.followPath(firstCollectionChain_1.get(), 0.3, true);
+                    follower.followPath(firstCollectionChain_1.get(), 0.4, true);
                     pathState = 4;
                     delayTimer[5] = timer.milliseconds();
                     break;
@@ -527,23 +525,11 @@ public class RedGoalAuto extends OpMode {
                     follower.followPath(closeShotPoint.get(), true);
                     pathState = 5;
                     shotParametersComputed = false;
-                    telemetry.addLine("pathState 0");
                     break;
                 }
-//
-//            case 5:
-//                if(!follower.isBusy()&& timerExpired(5, 2000)) {
-//                    follower.followPath(firstCollectionChain_3.get(), true);
-//                    pathState++;
-//                    delayTimer[5] = timer.milliseconds();
-//                    break;
-//                }
-//
             case 5:
-                telemetry.addLine("pathState 1");
                 if(!follower.isBusy()){
                     if (!shootArtifactAtLowSpeed){
-                        telemetry.addLine("pathState 1: Calling CustomShot");
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
@@ -556,13 +542,12 @@ public class RedGoalAuto extends OpMode {
                 if(!follower.isBusy()) {
                     follower.followPath(secondCollectionChain_0.get(), true);
                     pathState = 7;
-                    //delayTimer[5] = timer.milliseconds();
                     break;
                 }
 
             case 7:
                 if(!follower.isBusy()) {
-                    follower.followPath(secondCollectionChain_1.get(), 0.4, true);
+                    follower.followPath(secondCollectionChain_1.get(), 0.8, true);
                     pathState = 8;
                     delayTimer[5] = timer.milliseconds();
                     break;
@@ -574,15 +559,12 @@ public class RedGoalAuto extends OpMode {
                     follower.followPath(closeShotPoint.get(), true);
                     pathState = 9;
                     shotParametersComputed = false;
-                    telemetry.addLine("pathState 0");
                     break;
                 }
 
             case 9:
-                telemetry.addLine("pathState 1");
                 if(!follower.isBusy()){
                     if (!shootArtifactAtLowSpeed){
-                        telemetry.addLine("pathState 1: Calling CustomShot");
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
@@ -590,44 +572,6 @@ public class RedGoalAuto extends OpMode {
                     }
                     break;
                 }
-
-
-
-
-
-
-//
-//            case 4:
-//                /*if(!follower.isBusy()){
-//                    this.customShot();
-//                }*/pathState++;
-//                break;
-//
-//            case 5:
-//                this.toggleIntake();
-//                follower.followPath(secondCollectionChain.get(), true);
-//                pathState++;
-//                break;
-//
-//            case 6:
-//                if(!follower.isBusy()){
-//                    this.toggleIntake();
-//                    follower.followPath(collectionShotPoint.get(), true);
-//                    pathState++;
-//                    shotParametersComputed = false;
-//                }
-//                break;
-//
-//            case 7:
-//                if(!follower.isBusy()){
-//                    this.customShot();
-//                }
-//                break;
-//
-//            case 8:
-//                pathState = -1;
-//                break;
-//
         }
 
         stack = sorter.getArtifactStack();

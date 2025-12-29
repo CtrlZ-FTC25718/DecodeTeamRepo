@@ -20,8 +20,8 @@ import java.util.function.Supplier;
 import android.util.Log;
 
 @Configurable
-@Autonomous(name = "Auto: Red Goal: Front Wall")
-public class RedGoalAuto extends OpMode {
+@Autonomous(name = "Auto: RED: Front - 6")
+public class Auto_RED_Front_6 extends OpMode {
     private Follower follower;
     public Pose startingPose;
     private TelemetryManager telemetryM;
@@ -41,7 +41,7 @@ public class RedGoalAuto extends OpMode {
     private String teamColor; // Set to Red or Blue
 
     //Autonomous Variables
-    private Supplier<PathChain> closeShotPoint, firstCollectionChain_0, firstCollectionChain_1, secondCollectionChain_0, secondCollectionChain_1, customShotPathChain;
+    private Supplier<PathChain> closeShotPoint, firstCollectionChain_0, firstCollectionChain_1, secondCollectionChain_0, secondCollectionChain_1, endingChain, customShotPathChain;
 
     private int pathState;
     private boolean shotParametersComputed;
@@ -54,7 +54,7 @@ public class RedGoalAuto extends OpMode {
         teamColor = "Red";
         // Set Starting Pose
         startingPose= new Pose(111.5,135, Math.toRadians(-90));; //See ExampleAuto to understand how to use this
-
+//        startingPose= new Pose(124,124, Math.toRadians(45));;
 
         follower = Constants.createFollower(hardwareMap);
         follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
@@ -115,7 +115,12 @@ public class RedGoalAuto extends OpMode {
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
         secondCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(120, 62))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(136, 62))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
+                .build();
+
+        endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 62))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
@@ -513,7 +518,7 @@ public class RedGoalAuto extends OpMode {
 
             case 3:
                 if(!follower.isBusy()){
-                    follower.followPath(firstCollectionChain_1.get(), 0.4, true);
+                    follower.followPath(firstCollectionChain_1.get(), 0.37, true);
                     pathState = 4;
                     delayTimer[5] = timer.milliseconds();
                     break;
@@ -547,31 +552,23 @@ public class RedGoalAuto extends OpMode {
 
             case 7:
                 if(!follower.isBusy()) {
-                    follower.followPath(secondCollectionChain_1.get(), 0.8, true);
+                    follower.followPath(secondCollectionChain_1.get(), 1.0, true);
+//                    Log.d("StateReached: ", "State 7");
                     pathState = 8;
                     delayTimer[5] = timer.milliseconds();
                     break;
                 }
 
             case 8:
-                if (!follower.isBusy() && timerExpired(5,2000)) {
-                    shooter.setVelocity("Low");
-                    follower.followPath(closeShotPoint.get(), true);
-                    pathState = 9;
-                    shotParametersComputed = false;
+                if(!follower.isBusy()) {
+                    follower.followPath(endingChain.get(), 1.0, true);
+//                    Log.d("StateReached: ", "State 7");
+                    pathState = -1;
+                    delayTimer[5] = timer.milliseconds();
                     break;
                 }
 
-            case 9:
-                if(!follower.isBusy()){
-                    if (!shootArtifactAtLowSpeed){
-                        this.closeShot();
-                    }
-                    if (!isShooting && !shootArtifactAtLowSpeed){
-                        pathState = 10;
-                    }
-                    break;
-                }
+
         }
 
         stack = sorter.getArtifactStack();

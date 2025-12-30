@@ -67,6 +67,7 @@ public class Auto_RED_Front_6 extends OpMode {
         shooter = new Shooter(hardwareMap);
 
         timer = new ElapsedTime();
+        sorter.reset(); //Reset sorter to SorterZeroPos
         sorter.shift(0);
         sorter.door("Close");
         sorter.update();
@@ -149,7 +150,7 @@ public class Auto_RED_Front_6 extends OpMode {
     private void shootArtifact (){
         Log.d("Shooter0","Inside ShootArtifact");
         isShooting = true;
-        if (timerExpired(3,2000)){
+        if (timerExpired(3,1000)){
             Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
@@ -518,7 +519,7 @@ public class Auto_RED_Front_6 extends OpMode {
 
             case 3:
                 if(!follower.isBusy()){
-                    follower.followPath(firstCollectionChain_1.get(), 0.37, true);
+                    follower.followPath(firstCollectionChain_1.get(), 0.42, true);
                     pathState = 4;
                     delayTimer[5] = timer.milliseconds();
                     break;

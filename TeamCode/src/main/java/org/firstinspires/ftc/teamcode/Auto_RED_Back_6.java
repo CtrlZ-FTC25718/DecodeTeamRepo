@@ -67,6 +67,7 @@ public class Auto_RED_Back_6 extends OpMode {
         shooter = new Shooter(hardwareMap);
 
         timer = new ElapsedTime();
+        sorter.reset(); //Reset sorter to SorterZeroPos
         sorter.shift(0);
         sorter.door("Close");
         sorter.update();

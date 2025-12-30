@@ -35,6 +35,7 @@ public class Auto_BLUE_Back_6 extends OpMode {
     private ElapsedTime timer;
     private double[] delayTimer;
     private String[] stack;
+
     private boolean shootArtifactAtHighSpeed, shootArtifactAtLowSpeed, shootArtifactAtCustomSpeed;
     private double[] customParameters = {0.0, 0.0};
 
@@ -67,6 +68,7 @@ public class Auto_BLUE_Back_6 extends OpMode {
         shooter = new Shooter(hardwareMap);
 
         timer = new ElapsedTime();
+        sorter.reset(); //Reset sorter to SorterZeroPos
         sorter.shift(0);
         sorter.door("Close");
         sorter.update();

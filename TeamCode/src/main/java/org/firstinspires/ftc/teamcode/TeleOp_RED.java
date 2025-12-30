@@ -20,8 +20,8 @@ import java.util.function.Supplier;
 import android.util.Log;
 
 @Configurable
-@TeleOp(name = "TeleOp: RED -  BackWall")
-public class DecodeTeleOp_Red_BackWall extends OpMode {
+@TeleOp(name = "TeleOp: RED")
+public class TeleOp_RED extends OpMode {
 private Follower follower;
     public Pose startingPose;
     private boolean automatedDrive;
@@ -50,11 +50,10 @@ private Follower follower;
         // set Team Color to Red or Blue - Should match with the teleOp Name
         teamColor = "Red";
         // Set Starting Pose
-        startingPose= new Pose(48,9, Math.toRadians(90));; //See ExampleAuto to understand how to use this
+        startingPose = new Pose(8.5,8.5, Math.toRadians(90));; //See ExampleAuto to understand how to use this
 
 
         follower = Constants.createFollower(hardwareMap);
-        follower.setStartingPose(startingPose == null ? new Pose() : startingPose);
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
         
@@ -74,9 +73,7 @@ private Follower follower;
         shooter = new Shooter(hardwareMap);
 
         timer = new ElapsedTime();
-        sorter.shift(0);
-        sorter.door("Close");
-        sorter.update();
+
 
         sorter.initializeIndicatorColor();
 
@@ -331,6 +328,10 @@ private Follower follower;
             shooter.setVelocity("Low");
         }
     }
+    public void toggleDirection(){
+        intake.setDirection(-1 * intake.getDirection());
+        intake.update();
+    }
     public void driveControl(){
         if (!automatedDrive) {
             //Make the last parameter false for field-centric
@@ -384,6 +385,12 @@ private Follower follower;
         //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
+
+        sorter.setPosition(0.188);
+        sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State for Preloads
+        sorter.door("Close");
+        sorter.update();
+
         shooter.setVelocity("Idle");
     }
 
@@ -435,6 +442,12 @@ private Follower follower;
             follower.startTeleopDrive();
             automatedDrive = false;
         }
+
+        if (gamepad1.right_trigger > 0){
+            intake.setDirection(-1);
+            toggleIntake();
+        }
+
         //Slow Mode
         if (gamepad1.leftBumperWasPressed()) {
             slowMode = !slowMode;
@@ -442,6 +455,7 @@ private Follower follower;
 
         // Toggle Intake
         if (gamepad1.rightBumperWasPressed()) {
+            intake.setDirection(1);
             intake.setIntakeState(!intake.getIntakeState());
             intake.update();
             // Handle Shooter Spin Up
@@ -580,6 +594,21 @@ private Follower follower;
         if(gamepad2.yWasPressed() || gamepad2.y){
             sorter.door("Open");
             sorter.update();
+        }
+
+        if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
+            follower.setPose(startingPose);
+            follower.update();
+
+        }
+
+        if(gamepad2.rightBumperWasPressed()){
+            toggleDirection();
+
+        }
+
+        if(gamepad2.leftBumperWasPressed()){
+            intake.releaseJam();
         }
 
         /* if(gamepad2.rightBumperWasPressed()){

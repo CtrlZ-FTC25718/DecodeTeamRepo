@@ -41,16 +41,12 @@ public class Sorter {
         state.add(new String[] {"", "", ""}); // state.get/set(1)
         state.add("Closed"); // state.get/set(2)
 
-        this.reset(); //Reset sorter to SorterZeroPos
-
         sorterServo.setDirection(Servo.Direction.FORWARD);
         // sorterServo.setPosition(0);
 
         indicatorLight.scaleRange(0.0, 1.0);
-
         this.update();
-
-
+        // Constructor does not reset sorter
     }
 
     public void shift(int numberPositions){

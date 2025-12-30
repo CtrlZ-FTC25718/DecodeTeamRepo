@@ -29,7 +29,7 @@ public class Shooter {
 
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1300, 1750, 1300, 1425, 0, 0, 0, 0};
+    private final double[] shooterVel = {1400, 1750, 1400, 1425, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     private double robotEnergy;
@@ -48,7 +48,6 @@ public class Shooter {
         shooterBack.setDirection(DcMotorEx.Direction.FORWARD);
         shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         shooterBack.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-
         shooterFrontPIDF = new PIDFCoefficients(50, 0,0, 22.5); // 50, 0, 0, 20.4
         //shooterBackPIDF = new PIDFCoefficients(800, 70, 70, 20);
         shooterBackPIDF =  new PIDFCoefficients(55,0,0,27.5); // 55, 0, 0, 25

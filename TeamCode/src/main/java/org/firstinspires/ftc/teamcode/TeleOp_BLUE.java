@@ -17,11 +17,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 
 import java.util.function.Supplier;
 
-import android.util.Log;
-
 @Configurable
-@TeleOp(name = "TeleOp: RED")
-public class TeleOp_RED extends OpMode {
+@TeleOp(name = "TeleOp: BLUE")
+public class TeleOp_BLUE extends OpMode {
 private Follower follower;
     public Pose startingPose;
     private boolean automatedDrive;
@@ -49,7 +47,7 @@ private Follower follower;
     @Override
     public void init() {
         // set Team Color to Red or Blue - Should match with the teleOp Name
-        teamColor = "Red";
+        teamColor = "Blue";
         // Set Starting Pose
         startingPose = new Pose(72,8.5, Math.toRadians(90));; //See ExampleAuto to understand how to use this
 
@@ -60,18 +58,18 @@ private Follower follower;
         
         
         farShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 26))))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(67), .8))
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(86, 86))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(58, 86))))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), .8))
                 .build();
 
         endgameChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(38, 38))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(108, 38))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(180), .8))
                 .build();
 
         intake = new Intake(hardwareMap);

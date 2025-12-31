@@ -99,7 +99,7 @@ public class Auto_RED_Back_9 extends OpMode {
         // Autonomous Path Construction
         farShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(68), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(67), .8))
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -122,7 +122,7 @@ public class Auto_RED_Back_9 extends OpMode {
                 .build();
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 62))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 38))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
@@ -361,7 +361,7 @@ public class Auto_RED_Back_9 extends OpMode {
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                     toggleIntake();
                 }
-                if(timerExpired(1, 100)){
+                if(timerExpired(1, 1)){
                     toggleIntake();
                     sorter.shift(1); //If ball has been taken in & sorter once, used to sort twice
                     sorter.update();
@@ -410,8 +410,8 @@ public class Auto_RED_Back_9 extends OpMode {
             sorter.door("Open");
             sorter.update();
             sorter.wiggleUp();
-            intake.setIntakeState(false);
-            intake.update();
+//            intake.setIntakeState(false);
+//            intake.update();
             shooter.closeBlocker(); // do not shoot until velocity is reached
             shooter.setVelocity("Custom");
 
@@ -525,14 +525,14 @@ public class Auto_RED_Back_9 extends OpMode {
 
             case 3:
                 if(!follower.isBusy()){
-                    follower.followPath(firstCollectionChain_1.get(), 0.8, true);
+                    follower.followPath(firstCollectionChain_1.get(), 1, true);
                     pathState = 4;
                     delayTimer[5] = timer.milliseconds();
                 }
                 break;
 
             case 4:
-                if (!follower.isBusy() && timerExpired(5,2000)) {
+                if (!follower.isBusy() && timerExpired(5,1000)) {
                     shooter.setVelocity("High");
                     follower.followPath(farShotPoint.get(), true);
                     pathState = 5;
@@ -561,7 +561,7 @@ public class Auto_RED_Back_9 extends OpMode {
 
             case 7:
                 if(!follower.isBusy()) {
-                    follower.followPath(secondCollectionChain_1.get(), 0.8, true);
+                    follower.followPath(secondCollectionChain_1.get(), 1, true);
 //                    Log.d("StateReached: ", "State 7");
                     pathState = 8;
                     delayTimer[5] = timer.milliseconds();
@@ -570,8 +570,8 @@ public class Auto_RED_Back_9 extends OpMode {
 
             case 8:
                 if(!follower.isBusy()) {
-                    shooter.setVelocity("Low");
-                    follower.followPath(closeShotPoint.get(), true);
+                    shooter.setVelocity("High");
+                    follower.followPath(farShotPoint.get(), true);
                     pathState = 9;
                     shotParametersComputed = false;
                 }
@@ -579,10 +579,10 @@ public class Auto_RED_Back_9 extends OpMode {
 
             case 9:
                 if(!follower.isBusy()) {
-                    if (!shootArtifactAtCustomSpeed) {
-                        this.customShot();
+                    if (!shootArtifactAtHighSpeed) {
+                        this.farShot();
                     }
-                    if (!isShooting && !shootArtifactAtCustomSpeed) {
+                    if (!isShooting && !shootArtifactAtHighSpeed) {
                         pathState = 10;
                     }
                 }

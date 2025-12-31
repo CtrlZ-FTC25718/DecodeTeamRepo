@@ -361,7 +361,7 @@ public class Auto_RED_Front_9 extends OpMode {
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                     toggleIntake();
                 }
-                if(timerExpired(1, 100)){
+                if(timerExpired(1, 1)){
                     toggleIntake();
                     sorter.shift(1); //If ball has been taken in & sorter once, used to sort twice
                     sorter.update();

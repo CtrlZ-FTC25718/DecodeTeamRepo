@@ -24,7 +24,7 @@ public class Sorter {
     private final double doorOpenedPos = 0.2;
 
     private final double doorClosedPos = 0.55;
-    private static final double sorterZeroPos = 0.065; // was 0.05
+    private static final double sorterZeroPos = 0.07; // was 0.05
 
     //Constructor
     public Sorter(HardwareMap map){

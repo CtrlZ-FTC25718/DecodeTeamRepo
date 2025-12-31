@@ -6,6 +6,7 @@ import com.bylazar.configurables.annotations.Configurable;
 import com.bylazar.telemetry.PanelsTelemetry;
 import com.bylazar.telemetry.TelemetryManager;
 import com.pedropathing.follower.Follower;
+import com.pedropathing.geometry.BezierCurve;
 import com.pedropathing.geometry.BezierLine;
 import com.pedropathing.geometry.Pose;
 import com.pedropathing.paths.HeadingInterpolator;
@@ -20,8 +21,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 import java.util.function.Supplier;
 
 @Configurable
-@Autonomous(name = "Auto: RED: Back - 6")
-public class Auto_RED_Back_6 extends OpMode {
+@Autonomous(name = "Auto: RED: Front - 9")
+public class Auto_RED_Front_9 extends OpMode {
     private Follower follower;
     public Pose startingPose;
     private TelemetryManager telemetryM;
@@ -41,7 +42,7 @@ public class Auto_RED_Back_6 extends OpMode {
     private String teamColor; // Set to Red or Blue
 
     //Autonomous Variables
-    private Supplier<PathChain> farShotPoint, firstCollectionChain_0, firstCollectionChain_1, secondCollectionChain_0, secondCollectionChain_1, endingChain, customShotPathChain;
+    private Supplier<PathChain> closeShotPoint, firstCollectionChain_0, firstCollectionChain_1, secondCollectionChain_0, secondCollectionChain_1, endingChain, customShotPathChain, closeShotFinal;
 
     private int pathState;
     private boolean shotParametersComputed;
@@ -53,7 +54,7 @@ public class Auto_RED_Back_6 extends OpMode {
         // set Team Color to Red or Blue - Should match with the teleOp Name
         teamColor = "Red";
         // Set Starting Pose
-        startingPose= new Pose(96,9, Math.toRadians(90));; //See ExampleAuto to understand how to use this
+        startingPose= new Pose(111.5,135, Math.toRadians(-90));; //See ExampleAuto to understand how to use this
 //        startingPose= new Pose(124,124, Math.toRadians(45));;
 
         follower = Constants.createFollower(hardwareMap);
@@ -96,33 +97,38 @@ public class Auto_RED_Back_6 extends OpMode {
         sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State for Preloads
 
         // Autonomous Path Construction
-        farShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(68), .8))
+        closeShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 96))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(48), .8))
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 33))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 84))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
         firstCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(136, 33))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(129, 84))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
         secondCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 56))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 62))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
         secondCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(136, 56))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(136, 62))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 62))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
+                .build();
+
+        closeShotFinal = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierCurve(follower::getPose, new Pose(90, 67))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), .8))
                 .build();
 
 //        firstCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -150,7 +156,7 @@ public class Auto_RED_Back_6 extends OpMode {
     private void shootArtifact (){
         Log.d("Shooter0","Inside ShootArtifact");
         isShooting = true;
-        if (timerExpired(3,2000)){
+        if (timerExpired(3,1000)){
             Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
@@ -281,7 +287,7 @@ public class Auto_RED_Back_6 extends OpMode {
                 }
             }
             else {
-                if (timerExpired(4, 2000)){
+                if (timerExpired(4, 1000)){
                     // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
                     // Execute end actions after shooting artifacts
 //                    Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
@@ -299,7 +305,7 @@ public class Auto_RED_Back_6 extends OpMode {
 
                     shotCount = 0; // Reset Shot counter
 
-                    pathState++; //Move on to next autonomous step
+//                    pathState++; //Move on to next autonomous step
 
                     // Rest all delay timers
                     delayTimer[0] = 0; // Reset Intake Delay Timer
@@ -492,83 +498,102 @@ public class Auto_RED_Back_6 extends OpMode {
         //Autonomous Code:
         switch(pathState){
             case 0:
-                shooter.setVelocity("High");
-                follower.followPath(farShotPoint.get(), true);
+                shooter.setVelocity("Low");
+                follower.followPath(closeShotPoint.get(), true);
                 pathState = 1;
                 shotParametersComputed = false;
                 break;
 
             case 1:
                 if(!follower.isBusy()) {
-                    if (!shootArtifactAtHighSpeed) {
-                        this.farShot();
+                    if (!shootArtifactAtLowSpeed) {
+                        this.closeShot();
                     }
-                    if (!isShooting && !shootArtifactAtHighSpeed) {
+                    if (!isShooting && !shootArtifactAtLowSpeed) {
                         pathState = 2;
                     }
-                    break;
                 }
+                break;
 
             case 2:
                 if(!follower.isBusy()) {
                     this.toggleIntake();
                     follower.followPath(firstCollectionChain_0.get(), true);
                     pathState = 3;
-                    break;
                 }
+                break;
 
             case 3:
                 if(!follower.isBusy()){
-                    follower.followPath(firstCollectionChain_1.get(), 0.4, true);
+                    follower.followPath(firstCollectionChain_1.get(), 0.37, true);
                     pathState = 4;
                     delayTimer[5] = timer.milliseconds();
-                    break;
                 }
+                break;
 
             case 4:
                 if (!follower.isBusy() && timerExpired(5,2000)) {
-                    shooter.setVelocity("High");
-                    follower.followPath(farShotPoint.get(), true);
+                    shooter.setVelocity("Low");
+                    follower.followPath(closeShotPoint.get(), true);
                     pathState = 5;
                     shotParametersComputed = false;
-                    break;
                 }
+                break;
             case 5:
                 if(!follower.isBusy()){
-                    if (!shootArtifactAtHighSpeed){
-                        this.farShot();
+                    if (!shootArtifactAtLowSpeed){
+                        this.closeShot();
                     }
-                    if (!isShooting && !shootArtifactAtHighSpeed){
+                    if (!isShooting && !shootArtifactAtLowSpeed){
                         pathState = 6;
                     }
-                    break;
                 }
+                break;
 
             case 6:
                 if(!follower.isBusy()) {
-                    toggleIntake();
                     follower.followPath(secondCollectionChain_0.get(), true);
                     pathState = 7;
-                    break;
                 }
+                break;
 
             case 7:
                 if(!follower.isBusy()) {
-                    follower.followPath(secondCollectionChain_1.get(), 1.0, true);
+                    follower.followPath(secondCollectionChain_1.get(), 0.8, true);
 //                    Log.d("StateReached: ", "State 7");
                     pathState = 8;
                     delayTimer[5] = timer.milliseconds();
-                    break;
                 }
+                break;
 
             case 8:
+                if(!follower.isBusy()) {
+                    shooter.setVelocity("Low");
+                    follower.followPath(closeShotFinal.get(), true);
+                    pathState = 9;
+                    shotParametersComputed = false;
+                }
+                break;
+
+            case 9:
+                if(!follower.isBusy()) {
+                    if (!shootArtifactAtCustomSpeed) {
+                        this.customShot();
+                    }
+                    if (!isShooting && !shootArtifactAtCustomSpeed) {
+                        pathState = 10;
+                    }
+                }
+                break;
+
+            case 10:
                 if(!follower.isBusy()) {
                     follower.followPath(endingChain.get(), 1.0, true);
 //                    Log.d("StateReached: ", "State 7");
                     pathState = -1;
                     delayTimer[5] = timer.milliseconds();
-                    break;
                 }
+                break;
 
 
         }

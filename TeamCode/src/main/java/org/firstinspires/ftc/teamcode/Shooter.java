@@ -29,7 +29,7 @@ public class Shooter {
 
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1400, 1750, 1400, 1425, 0, 0, 0, 0};
+    private final double[] shooterVel = {1300, 1800, 1300, 1450, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     private double robotEnergy;

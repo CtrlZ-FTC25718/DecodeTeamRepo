@@ -25,7 +25,7 @@ public class TeleOp_RED extends OpMode {
 private Follower follower;
     public Pose startingPose;
     private boolean automatedDrive;
-    private Supplier<PathChain> farShotPathChain, closeShotPathChain, customShotPathChain;
+    private Supplier<PathChain> farShotPathChain, closeShotPathChain, customShotPathChain, endgameChain;
     private TelemetryManager telemetryM;
     private boolean slowMode = false;
     private double slowModeMultiplier = 0.25;
@@ -38,6 +38,7 @@ private Follower follower;
     private ElapsedTime timer;
     private double[] delayTimer;
     private String[] stack;
+    private double artifactCountBefore, artifactCountAfter;
     private boolean shootArtifactAtHighSpeed, shootArtifactAtLowSpeed, shootArtifactAtCustomSpeed;
     private double[] customParameters = {0.0, 0.0};
 
@@ -68,6 +69,11 @@ private Follower follower;
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), .8))
                 .build();
 
+        endgameChain = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(36, 32))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), .8))
+                .build();
+
         intake = new Intake(hardwareMap);
         sorter = new Sorter(hardwareMap);
         shooter = new Shooter(hardwareMap);
@@ -82,6 +88,8 @@ private Follower follower;
         shootArtifactAtLowSpeed = false;
         shootArtifactAtCustomSpeed = false;
         shotCount = 0;
+        artifactCountBefore = 0;
+        artifactCountAfter = 0;
 
         // Use shotTimer to delay for various reasons\
         // Index 0 used for delaying intake reversal when sorter is full
@@ -89,7 +97,7 @@ private Follower follower;
         // Index 2 used for delaying ball detection
         // Index 3 used for delaying for door opening to shoot artifact
         // Index 4 used for delaying sorter rotation for shooting
-        delayTimer = new double[5]; // create 4 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
+        delayTimer = new double[5]; // create 5 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
 
 
     }
@@ -105,7 +113,7 @@ private Follower follower;
     }
 
     private void shootArtifact (){
-        if (timerExpired(3,2000)){
+        if (timerExpired(3,1000)){
             //Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
@@ -190,7 +198,7 @@ private Follower follower;
                             //Log.d("Shooter5", "Long shot active");
 
                             if (shooter.isAtCustomVel()) {
-                                Log.d("Shooter5p1", "Shooter reached custom vel");
+//                                Log.d("Shooter5p1", "Shooter reached custom vel");
 
                                 if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
                                     sorter.shift(1);
@@ -235,7 +243,7 @@ private Follower follower;
                 }
             }
             else {
-                if (timerExpired(4, 2000)){
+                if (timerExpired(4, 1000)){
                     // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
                     // Execute end actions after shooting artifacts
 //                    Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
@@ -258,8 +266,6 @@ private Follower follower;
                     delayTimer[2] = 0; // Ball detect Delay Timer
                     delayTimer[3] = 0; // Reset Shooter Door Delay Timer
                     delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
-
-
                 }
 
             }
@@ -288,8 +294,11 @@ private Follower follower;
             stack = sorter.getArtifactStack();
             //Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
+            artifactCountBefore = sorter.getArtifactCount();
             sorter.detect(); //Detect potential artifact
             stack = sorter.getArtifactStack();
+            artifactCountAfter = sorter.getArtifactCount();
+
             //Log.d("Shifting1", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
             stack = sorter.getArtifactStack();
@@ -311,6 +320,7 @@ private Follower follower;
                     delayTimer[1] = 0;
                     delayTimer[2] = timer.milliseconds();
                     //Log.d("Shifting2", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
                 }
             }
         }
@@ -386,8 +396,8 @@ private Follower follower;
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
 
-        sorter.setPosition(0.188);
-        sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State for Preloads
+//        sorter.setPosition(0.188);
+//        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
         sorter.door("Close");
         sorter.update();
 
@@ -510,7 +520,7 @@ private Follower follower;
         }
 
         // Custom Shot
-        if(gamepad1.guide || gamepad1.guideWasReleased()){
+        if(gamepad1.guideWasPressed() || gamepad1.guideWasReleased()){
             //Shoot Artifacts (everything that is in the stack)
             if(!sorter.isEmpty()){
                 shootArtifactAtCustomSpeed = true;
@@ -611,6 +621,11 @@ private Follower follower;
             intake.releaseJam();
         }
 
+        if(gamepad2.left_trigger != 0){
+            sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State for Preloads
+            sorter.update();
+        }
+
         /* if(gamepad2.rightBumperWasPressed()){
             if(intake.getPower() == 0){
                 intake.setPower(-1);
@@ -632,8 +647,8 @@ private Follower follower;
 //        telemetry.addData("IsAutomatedDriveMode: ", "" + automatedDrive);
 //        telemetry.addData("SorterFull: ", sorter.isFull());
 
-        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
-        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
+//        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
+//        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
 
 //        telemetry.addData("SorterPos: ", sorter.getPosition());
 
@@ -641,9 +656,9 @@ private Follower follower;
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 
-        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
-        telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);
-        telemetry.addData("Custom Shooting Heading in Degrees", customParameters[1]);
+//        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
+//        telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);
+//        telemetry.addData("Custom Shooting Heading in Degrees", customParameters[1]);
 
 
     }

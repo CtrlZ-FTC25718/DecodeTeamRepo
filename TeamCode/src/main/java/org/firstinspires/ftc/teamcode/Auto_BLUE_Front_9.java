@@ -69,7 +69,7 @@ public class Auto_BLUE_Front_9 extends OpMode {
 
         timer = new ElapsedTime();
         sorter.reset(); //Reset sorter to SorterZeroPos
-        sorter.shift(0);
+//        sorter.shift(0);
         sorter.door("Close");
         sorter.update();
 
@@ -129,8 +129,8 @@ public class Auto_BLUE_Front_9 extends OpMode {
                 .build();
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 60))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 112))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(138)))
                 .build();
 
 //        firstCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -412,8 +412,8 @@ public class Auto_BLUE_Front_9 extends OpMode {
             sorter.door("Open");
             sorter.update();
             sorter.wiggleUp();
-//            intake.setIntakeState(false);
-//            intake.update();
+            intake.setIntakeState(false);
+            intake.update();
             shooter.closeBlocker(); // do not shoot until velocity is reached
             shooter.setVelocity("Custom");
 
@@ -594,6 +594,7 @@ public class Auto_BLUE_Front_9 extends OpMode {
                     }
                     delayTimer[5] = timer.milliseconds();
                 }
+                break;
 
 
             case 10:

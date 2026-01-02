@@ -124,7 +124,7 @@ public class Auto_BLUE_Back_6 extends OpMode {
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 36))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(125)))
                 .build();
 
         closeShotChain = () -> follower.pathBuilder() //Lazy Curve Generation

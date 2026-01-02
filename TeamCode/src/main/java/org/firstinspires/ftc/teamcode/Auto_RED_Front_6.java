@@ -70,7 +70,7 @@ public class Auto_RED_Front_6 extends OpMode {
 
         timer = new ElapsedTime();
         sorter.reset(); //Reset sorter to SorterZeroPos
-        sorter.shift(0);
+//        sorter.shift(0);
         sorter.door("Close");
         sorter.update();
 
@@ -100,7 +100,7 @@ public class Auto_RED_Front_6 extends OpMode {
         // Autonomous Path Construction
         closeShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 96))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(48), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(49), .8))
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -123,8 +123,8 @@ public class Auto_RED_Front_6 extends OpMode {
                 .build();
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 62))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 112))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(45)))
                 .build();
 
 //        firstCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation

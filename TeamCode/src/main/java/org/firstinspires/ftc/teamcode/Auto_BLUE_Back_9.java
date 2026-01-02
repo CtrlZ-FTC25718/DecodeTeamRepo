@@ -70,7 +70,7 @@ public class Auto_BLUE_Back_9 extends OpMode {
 
         timer = new ElapsedTime();
         sorter.reset(); //Reset sorter to SorterZeroPos
-        sorter.shift(0);
+//        sorter.shift(0);
         sorter.door("Close");
         sorter.update();
 
@@ -124,7 +124,7 @@ public class Auto_BLUE_Back_9 extends OpMode {
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 36))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(125)))
                 .build();
 
         closeShotChain = () -> follower.pathBuilder() //Lazy Curve Generation

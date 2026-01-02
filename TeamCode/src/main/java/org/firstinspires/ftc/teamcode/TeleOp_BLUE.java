@@ -288,7 +288,7 @@ private Follower follower;
             shooter.setVelocity("Low");
         }
 
-        if((timerExpired(2, 500) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
+        if((timerExpired(2, 250) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
             stack = sorter.getArtifactStack();
             //Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
@@ -312,7 +312,7 @@ private Follower follower;
                 if(delayTimer[1] == 0){
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                 }
-                if(timerExpired(1, 100)){
+                if(timerExpired(1, 1)){
                     sorter.shift(1); //If ball has been taken in & sorter once (used to sort twice)
                     sorter.update();
                     delayTimer[1] = 0;

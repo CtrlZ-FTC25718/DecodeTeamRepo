@@ -69,7 +69,7 @@ public class Auto_BLUE_Front_6 extends OpMode {
 
         timer = new ElapsedTime();
         sorter.reset(); //Reset sorter to SorterZeroPos
-        sorter.shift(0);
+//        sorter.shift(0);
         sorter.door("Close");
         sorter.update();
 
@@ -122,8 +122,8 @@ public class Auto_BLUE_Front_6 extends OpMode {
                 .build();
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 60))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 112))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(138)))
                 .build();
 
 //        firstCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -522,7 +522,7 @@ public class Auto_BLUE_Front_6 extends OpMode {
 
             case 3:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
-                    follower.followPath(firstCollectionChain_1.get(), 0.35, true);
+                    follower.followPath(firstCollectionChain_1.get(), 0.4, true);
                     pathState = 4;
                     pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();

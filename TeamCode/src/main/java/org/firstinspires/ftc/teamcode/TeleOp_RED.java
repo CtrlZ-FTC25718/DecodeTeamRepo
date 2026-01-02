@@ -44,6 +44,8 @@ private Follower follower;
 
     private String teamColor; // Set to Red or Blue
 
+    private limelightDetector visionDetector;
+
 
     /** This method is call once when init is played, it initializes the follower **/
     @Override
@@ -100,6 +102,8 @@ private Follower follower;
         delayTimer = new double[5]; // create 5 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
 
 
+        //Limelight Camera
+        visionDetector = new limelightDetector(hardwareMap);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
@@ -290,7 +294,7 @@ private Follower follower;
             shooter.setVelocity("Low");
         }
 
-        if((timerExpired(2, 500) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
+        if((timerExpired(2, 250) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
             stack = sorter.getArtifactStack();
             //Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
@@ -314,7 +318,7 @@ private Follower follower;
                 if(delayTimer[1] == 0){
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                 }
-                if(timerExpired(1, 100)){
+                if(timerExpired(1, 1)){
                     sorter.shift(1); //If ball has been taken in & sorter once (used to sort twice)
                     sorter.update();
                     delayTimer[1] = 0;
@@ -654,14 +658,21 @@ private Follower follower;
 //        telemetry.addData("IsAutomatedDriveMode: ", "" + automatedDrive);
 //        telemetry.addData("SorterFull: ", sorter.isFull());
 
-//        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
-//        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
+        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
+        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
 
 //        telemetry.addData("SorterPos: ", sorter.getPosition());
 
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+
+        double[] visionPosEst =  visionDetector.visualLocalization(new double[]{126, 134.5, 135}, 24, 1);
+
+        telemetry.addData("CameraX", visionPosEst[0] + "");
+        telemetry.addData("CameraY", visionPosEst[1] + "");
+        telemetry.addData("CameraTheta", visionPosEst[2] + "");
+
 
 //        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
 //        telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);

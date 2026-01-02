@@ -70,7 +70,7 @@ public class Auto_RED_Back_9 extends OpMode {
 
         timer = new ElapsedTime();
         sorter.reset(); //Reset sorter to SorterZeroPos
-        sorter.shift(0);
+//        sorter.shift(0);
         sorter.door("Close");
         sorter.update();
 
@@ -124,7 +124,7 @@ public class Auto_RED_Back_9 extends OpMode {
 
         endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 38))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(55)))
                 .build();
 
         closeShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -340,7 +340,7 @@ public class Auto_RED_Back_9 extends OpMode {
             shooter.setVelocity("Low");
         }
 
-        if((timerExpired(2, 500) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
+        if((timerExpired(2, 500) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){ //
             stack = sorter.getArtifactStack();
             //Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
@@ -520,6 +520,7 @@ public class Auto_RED_Back_9 extends OpMode {
             case 2:
                 if(!follower.isBusy()) {
                     this.toggleIntake();
+                    //this.toggleIntake();
                     follower.followPath(firstCollectionChain_0.get(), true);
                     pathState = 3;
                     pathChainTimer = timer.milliseconds();
@@ -558,7 +559,7 @@ public class Auto_RED_Back_9 extends OpMode {
             case 6:
                 if(!follower.isBusy()) {
                     shooter.setVelocity("Low");
-                    toggleIntake();
+                    this.toggleIntake();
                     follower.followPath(secondCollectionChain_0.get(), true);
                     pathState = 7;
                     pathChainTimer = timer.milliseconds();
@@ -614,7 +615,7 @@ public class Auto_RED_Back_9 extends OpMode {
 
         telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
         telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
-
+        telemetry.addData("Average Shooter Speed", ((shooter.getShooterFrontVel())+(shooter.getShooterBackVel()))/2);
 //        telemetry.addData("SorterPos: ", sorter.getPosition());
 
         telemetry.addData("X", follower.getPose().getX());
@@ -629,6 +630,7 @@ public class Auto_RED_Back_9 extends OpMode {
         telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
         telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);
         telemetry.addData("Custom Shooting Heading in Degrees", customParameters[1]);
+
 
 
     }

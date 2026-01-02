@@ -2,11 +2,13 @@ package org.firstinspires.ftc.teamcode;
 
 //Imports
 import com.qualcomm.robotcore.hardware.ColorSensor;
+import com.qualcomm.robotcore.hardware.DistanceSensor;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
 import java.util.ArrayList;
 import android.util.Log;
 
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 
 
 public class Sorter {
@@ -24,7 +26,8 @@ public class Sorter {
     private final double doorOpenedPos = 0.2;
 
     private final double doorClosedPos = 0.55;
-    private static final double sorterZeroPos = 0.07; // was 0.05
+    private static final double sorterZeroPos = 0.055; // was 0.07
+    private double distance;
 
     //Constructor
     public Sorter(HardwareMap map){
@@ -45,6 +48,7 @@ public class Sorter {
         // sorterServo.setPosition(0);
 
         indicatorLight.scaleRange(0.0, 1.0);
+        distance = 0; // Default
         this.update();
         // Constructor does not reset sorter
     }
@@ -89,7 +93,8 @@ public class Sorter {
         //Determine if Artifact Present
         double numberPositiveDetects = 0;
         for(int i = 0; i < sampleSize; i++){
-            if(detector.red() > 150 || detector.green() > 150 || detector.blue() > 150){
+            distance = ((DistanceSensor) detector).getDistance(DistanceUnit.MM);
+            if((distance >= 5 && distance <= 25) && (detector.red() > 150 || detector.green() > 150 || detector.blue() > 150)){
                 numberPositiveDetects++;
             }
         }

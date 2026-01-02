@@ -36,7 +36,7 @@ public class ShooterPIDTuning extends OpMode {
     private DcMotorEx front;
     private DcMotorEx back;
 
-    private double highVelocity = 1800;
+    private double highVelocity = 2000;
     private double lowVelocity = 0;
 
     private double targetVelocity = lowVelocity;

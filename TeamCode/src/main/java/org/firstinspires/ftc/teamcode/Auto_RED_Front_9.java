@@ -70,7 +70,7 @@ public class Auto_RED_Front_9 extends OpMode {
 
         timer = new ElapsedTime();
         sorter.reset(); //Reset sorter to SorterZeroPos
-        sorter.shift(0);
+//        sorter.shift(0);
         sorter.door("Close");
         sorter.update();
 
@@ -100,7 +100,7 @@ public class Auto_RED_Front_9 extends OpMode {
         // Autonomous Path Construction
         closeShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 96))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(48), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(49), .8))
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -128,8 +128,10 @@ public class Auto_RED_Front_9 extends OpMode {
                 .build();
 
         closeShotFinal = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierCurve(follower::getPose, new Pose(90, 67))))
+                .addPath(new Path(new BezierCurve(follower::getPose, new Pose(110, 67))))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), .8))
+                .addPath(new Path(new BezierCurve(follower::getPose, new Pose(85, 95))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(35), .8))
                 .build();
 
 //        firstCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -528,7 +530,7 @@ public class Auto_RED_Front_9 extends OpMode {
 
             case 3:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
-                    follower.followPath(firstCollectionChain_1.get(), 0.37, true);
+                    follower.followPath(firstCollectionChain_1.get(), 0.45, true);
                     pathState = 4;
                     pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
@@ -536,7 +538,7 @@ public class Auto_RED_Front_9 extends OpMode {
                 break;
 
             case 4:
-                if ((!follower.isBusy() && timerExpired(5,2000)) || (timer.milliseconds() - pathChainTimer) >= 3000) {
+                if ((!follower.isBusy() && timerExpired(5,2000)) || (timer.milliseconds() - pathChainTimer) >= 2000) {
                     shooter.setVelocity("Low");
                     follower.followPath(closeShotPoint.get(), true);
                     pathState = 5;
@@ -589,7 +591,7 @@ public class Auto_RED_Front_9 extends OpMode {
                         this.customShot();
                     }
                     if (!isShooting && !shootArtifactAtCustomSpeed) {
-                        pathState = 10;
+                        pathState = -1;
                     }
                 }
                 break;

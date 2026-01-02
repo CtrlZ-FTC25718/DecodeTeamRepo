@@ -29,7 +29,7 @@ public class Shooter {
 
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1375, 1750, 1350, 1425, 0, 0, 0, 0};
+    private final double[] shooterVel = {1350, 1650, 1300, 1600, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     private double robotEnergy;
@@ -48,9 +48,11 @@ public class Shooter {
         shooterBack.setDirection(DcMotorEx.Direction.FORWARD);
         shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         shooterBack.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-        shooterFrontPIDF = new PIDFCoefficients(50, 0,0, 22.5); // 50, 0, 0, 20.4
+        shooterFrontPIDF =  new PIDFCoefficients(60, 0, 0, 27);
+        shooterBackPIDF = shooterFrontPIDF;
+        //shooterFrontPIDF = new PIDFCoefficients(50, 0,0, 22.5); // 50, 0, 0, 20.4
         //shooterBackPIDF = new PIDFCoefficients(800, 70, 70, 20);
-        shooterBackPIDF =  new PIDFCoefficients(55,0,0,27.5); // 55, 0, 0, 25
+        //shooterBackPIDF =  new PIDFCoefficients(55,0,0,27.5); // 55, 0, 0, 25
 
         shooterFront.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterFrontPIDF);
         shooterBack.setPIDFCoefficients(DcMotorEx.RunMode.RUN_USING_ENCODER, shooterBackPIDF);
@@ -120,7 +122,8 @@ public class Shooter {
 
         switch (level) {
             case "High":
-                while (shooterBack.getVelocity() < (shooterVel[3]-50) && shooterFront.getVelocity() < (shooterVel[1]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                //while (shooterBack.getVelocity() < (shooterVel[3]-50) && shooterFront.getVelocity() < (shooterVel[1]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                while((shooterBack.getVelocity() + shooterFront.getVelocity())/2 < (shooterVel[3] - 50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1){
                     shooterBack.setPower(robotEnergy * (shooterBack.getPower() + rate));
                     shooterFront.setPower(robotEnergy * (shooterFront.getPower() + rate));
 //                    Log.d("Velocity Hold Target","High Velocity Hold - Waiting for Front to be " + shooterVel[1]);
@@ -129,13 +132,15 @@ public class Shooter {
                 break;
 
             case "Low":
-                while (shooterBack.getVelocity() < (shooterVel[2]-50) && shooterFront.getVelocity() < (shooterVel[0]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                //while (shooterBack.getVelocity() < (shooterVel[2]-50) && shooterFront.getVelocity() < (shooterVel[0]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                while((shooterBack.getVelocity() + shooterFront.getVelocity())/2 < (shooterVel[0] - 50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1){
                     shooterBack.setPower(robotEnergy * (shooterBack.getPower() + rate));
                     shooterFront.setPower(robotEnergy * (shooterFront.getPower() + rate));
                 }
                 break;
             case "Custom":
-                while (shooterBack.getVelocity() < (shooterVel[7]-50) && shooterFront.getVelocity() < (shooterVel[6]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                //while (shooterBack.getVelocity() < (shooterVel[7]-50) && shooterFront.getVelocity() < (shooterVel[6]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
+                while((shooterBack.getVelocity() + shooterFront.getVelocity())/2 < (shooterVel[6] - 50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1){
                     shooterBack.setPower(robotEnergy * (shooterBack.getPower() + rate));
                     shooterFront.setPower(robotEnergy * (shooterFront.getPower() + rate));
                 }
@@ -200,16 +205,19 @@ public class Shooter {
 
     public boolean isAtHighVel() {
         //return true;
-        return ((getShooterFrontVel() >= (shooterVel[1] - 50)) && (getShooterBackVel() >= (shooterVel[3] - 50)));
+       // return ((getShooterFrontVel() >= (shooterVel[1] - 50)) && (getShooterBackVel() >= (shooterVel[3] - 50)));
+        return ((getShooterFrontVel() + getShooterBackVel())/2 >= (shooterVel[1] - 50));
     }
 
     public boolean isAtLowVel() {
         //return true;
-        return ((getShooterFrontVel() >= (shooterVel[0] - 50)) && (getShooterBackVel() >= (shooterVel[2] - 50)));
+        //return ((getShooterFrontVel() >= (shooterVel[0] - 50)) && (getShooterBackVel() >= (shooterVel[2] - 50)));
+        return ((getShooterFrontVel() + getShooterBackVel())/2 >= (shooterVel[0] - 50));
     }
 
     public boolean isAtCustomVel() {
-        return ((getShooterFrontVel() >= (shooterVel[6] - 50)) && (getShooterBackVel() >= (shooterVel[7] - 50)));
+        //return ((getShooterFrontVel() >= (shooterVel[6] - 50)) && (getShooterBackVel() >= (shooterVel[7] - 50)));
+        return ((getShooterFrontVel() + getShooterBackVel())/2 >= (shooterVel[6] - 50));
     }
 
     public DcMotorEx getShooterFrontMotor() {

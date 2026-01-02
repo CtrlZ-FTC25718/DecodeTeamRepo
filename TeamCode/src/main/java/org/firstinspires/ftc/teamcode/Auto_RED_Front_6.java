@@ -46,6 +46,7 @@ public class Auto_RED_Front_6 extends OpMode {
 
     private int pathState;
     private boolean shotParametersComputed;
+    private double pathChainTimer;
 
 
     /** This method is call once when init is played, it initializes the follower **/
@@ -496,11 +497,12 @@ public class Auto_RED_Front_6 extends OpMode {
                 shooter.setVelocity("Low");
                 follower.followPath(closeShotPoint.get(), true);
                 pathState = 1;
+                pathChainTimer = timer.milliseconds();
                 shotParametersComputed = false;
                 break;
 
             case 1:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     if (!shootArtifactAtLowSpeed) {
                         this.closeShot();
                     }
@@ -514,28 +516,31 @@ public class Auto_RED_Front_6 extends OpMode {
                 if(!follower.isBusy()) {
                     this.toggleIntake();
                     follower.followPath(firstCollectionChain_0.get(), true);
+                    pathChainTimer = timer.milliseconds();
                     pathState = 3;
                 }
                 break;
 
             case 3:
-                if(!follower.isBusy()){
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     follower.followPath(firstCollectionChain_1.get(), 0.37, true);
                     pathState = 4;
+                    pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
                 }
                 break;
 
             case 4:
-                if (!follower.isBusy() && timerExpired(5,2000)) {
+                if ((!follower.isBusy() && timerExpired(5,2000)) || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     shooter.setVelocity("Low");
                     follower.followPath(closeShotPoint.get(), true);
                     pathState = 5;
+                    pathChainTimer = timer.milliseconds();
                     shotParametersComputed = false;
                 }
                 break;
             case 5:
-                if(!follower.isBusy()){
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
                         this.closeShot();
                     }

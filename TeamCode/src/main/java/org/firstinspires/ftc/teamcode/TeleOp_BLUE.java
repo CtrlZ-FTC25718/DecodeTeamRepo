@@ -58,13 +58,13 @@ private Follower follower;
         
         
         farShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(67), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 25))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(117), .8))
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(58, 86))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(62, 90))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), .8))
                 .build();
 
         endgameChain = () -> follower.pathBuilder() //Lazy Curve Generation

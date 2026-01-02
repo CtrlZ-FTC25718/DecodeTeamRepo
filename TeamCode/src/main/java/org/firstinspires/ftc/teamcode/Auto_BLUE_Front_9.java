@@ -45,6 +45,7 @@ public class Auto_BLUE_Front_9 extends OpMode {
 
     private int pathState;
     private boolean shotParametersComputed;
+    private double pathChainTimer;
 
 
     /** This method is call once when init is played, it initializes the follower **/
@@ -502,11 +503,12 @@ public class Auto_BLUE_Front_9 extends OpMode {
                 shooter.setVelocity("Low");
                 follower.followPath(closeShotPoint.get(), true);
                 pathState = 1;
+                pathChainTimer = timer.milliseconds();
                 shotParametersComputed = false;
                 break;
 
             case 1:
-                if(!follower.isBusy()) {
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     if (!shootArtifactAtLowSpeed) {
                         this.closeShot();
                     }
@@ -521,27 +523,30 @@ public class Auto_BLUE_Front_9 extends OpMode {
                     this.toggleIntake();
                     follower.followPath(firstCollectionChain_0.get(), true);
                     pathState = 3;
+                    pathChainTimer = timer.milliseconds();
                 }
                 break;
 
             case 3:
-                if(!follower.isBusy()){
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     follower.followPath(firstCollectionChain_1.get(), 0.35, true);
                     pathState = 4;
+                    pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
                 }
                 break;
 
             case 4:
-                if (!follower.isBusy() && timerExpired(5,2000)) {
+                if ((!follower.isBusy() && timerExpired(5,2000)) || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     shooter.setVelocity("Low");
                     follower.followPath(closeShotPoint.get(), true);
                     pathState = 5;
+                    pathChainTimer = timer.milliseconds();
                     shotParametersComputed = false;
                 }
                 break;
             case 5:
-                if(!follower.isBusy()){
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
                         this.closeShot();
                     }
@@ -557,27 +562,30 @@ public class Auto_BLUE_Front_9 extends OpMode {
                     //this.toggleIntake();
                     follower.followPath(secondCollectionChain_0.get(), true);
                     pathState = 7;
+                    pathChainTimer = timer.milliseconds();
                 }
                 break;
 
             case 7:
-                if(!follower.isBusy()){
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     follower.followPath(secondCollectionChain_1.get(), 0.8, true);
                     pathState = 8;
+                    pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
                 }
                 break;
 
             case 8:
-                if (!follower.isBusy() && timerExpired(5,1000)) {
+                if ((!follower.isBusy() && timerExpired(5,1000)) || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     shooter.setVelocity("Low");
                     follower.followPath(closeShotFinal.get(), true);
                     pathState = 9;
+                    pathChainTimer = timer.milliseconds();
                     shotParametersComputed = false;
                 }
                 break;
             case 9:
-                if(!follower.isBusy()){
+                if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
                         this.closeShot();
                     }

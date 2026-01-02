@@ -65,7 +65,7 @@ private Follower follower;
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(86, 86))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(90, 90))))
                 .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), .8))
                 .build();
 

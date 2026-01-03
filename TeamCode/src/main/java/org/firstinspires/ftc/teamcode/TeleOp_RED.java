@@ -44,7 +44,7 @@ private Follower follower;
 
     private String teamColor; // Set to Red or Blue
 
-    private limelightDetector visionDetector;
+    //private limelightDetector visionDetector;
 
 
     /** This method is call once when init is played, it initializes the follower **/
@@ -103,7 +103,7 @@ private Follower follower;
 
 
         //Limelight Camera
-        visionDetector = new limelightDetector(hardwareMap);
+        //visionDetector = new limelightDetector(hardwareMap);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
@@ -367,14 +367,14 @@ private Follower follower;
             // Scale normal driving as a quadratic X^2
             if (!slowMode) {
 
-                if (rsy > 0){ rsy = -Math.pow(rsy,2);}
-                else {rsy = Math.pow(rsy,2);}
+                if (rsy > 0){ rsy = -1.5*Math.pow(rsy,2);}
+                else {rsy = 1.5*Math.pow(rsy,2);}
 
-                if (rsx > 0){ rsx = -Math.pow(rsx,2);}
-                else {rsx = Math.pow(rsx,2);}
+                if (rsx > 0){ rsx = -1.5*Math.pow(rsx,2);}
+                else {rsx = 1.5*Math.pow(rsx,2);}
 
-                if (lsx > 0){ lsx = -Math.pow(lsx,2);}
-                else {lsx = Math.pow(lsx,2);}
+                if (lsx > 0){ lsx = -1.5*Math.pow(lsx,2);}
+                else {lsx = 1.5*Math.pow(lsx,2);}
 
                 follower.setTeleOpDrive(
                         rsy,
@@ -667,11 +667,11 @@ private Follower follower;
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 
-        double[] visionPosEst =  visionDetector.visualLocalization(new double[]{126, 134.5, 135}, 24, 1);
-
-        telemetry.addData("CameraX", visionPosEst[0] + "");
-        telemetry.addData("CameraY", visionPosEst[1] + "");
-        telemetry.addData("CameraTheta", visionPosEst[2] + "");
+        //double[] visionPosEst =  visionDetector.visualLocalization(new double[]{126, 134.5, 135}, 24, 1);
+//
+//        telemetry.addData("CameraX", visionPosEst[0] + "");
+//        telemetry.addData("CameraY", visionPosEst[1] + "");
+//        telemetry.addData("CameraTheta", visionPosEst[2] + "");
 
 
 //        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");

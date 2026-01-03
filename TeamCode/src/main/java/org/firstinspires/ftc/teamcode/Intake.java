@@ -4,6 +4,7 @@ package org.firstinspires.ftc.teamcode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
+import com.qualcomm.robotcore.hardware.Servo;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import java.util.ArrayList;
@@ -13,6 +14,8 @@ import java.util.ArrayList;
 public class Intake {
 
     private static DcMotor intakeMotor;
+
+    private static Servo unJamServo;
     //State
     private double power;
     private boolean intakeOn;
@@ -25,6 +28,7 @@ public class Intake {
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        unJamServo.setDirection(Servo.Direction.FORWARD);
 
         power = 0.0; //Default State: Not Running
         direction = 1; //Default direction is forward (intake mode)
@@ -59,6 +63,11 @@ public class Intake {
         }
         this.setIntakeState(false);
         this.update();
+    }
+    public void slapArtifact(){
+      unJamServo.setPosition(0.31);
+      double slapTimer;
+      slapTimer = slapTimer.milliseconds();
     }
     public double getPower(){
         return power;

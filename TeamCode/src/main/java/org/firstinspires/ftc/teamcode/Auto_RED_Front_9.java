@@ -549,6 +549,7 @@ public class Auto_RED_Front_9 extends OpMode {
             case 5:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
+                        intake.slapArtifact();
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
@@ -589,6 +590,7 @@ public class Auto_RED_Front_9 extends OpMode {
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     if (!shootArtifactAtCustomSpeed) {
                         this.customShot();
+                        intake.slapArtifact();
                     }
                     if (!isShooting && !shootArtifactAtCustomSpeed) {
                         pathState = -1;

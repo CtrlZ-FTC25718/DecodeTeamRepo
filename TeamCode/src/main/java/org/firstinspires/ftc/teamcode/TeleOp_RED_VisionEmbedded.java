@@ -17,11 +17,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 
 import java.util.function.Supplier;
 
-import android.util.Log;
-
 @Configurable
-@TeleOp(name = "TeleOp: RED")
-public class TeleOp_RED extends OpMode {
+@TeleOp(name = "TeleOp: RED - Vision")
+public class TeleOp_RED_VisionEmbedded extends OpMode {
 private Follower follower;
     public Pose startingPose;
     private boolean automatedDrive;
@@ -44,7 +42,7 @@ private Follower follower;
 
     private String teamColor; // Set to Red or Blue
 
-    //private limelightDetector visionDetector;
+    private limelightDetector visionDetector;
 
 
     /** This method is call once when init is played, it initializes the follower **/
@@ -103,7 +101,7 @@ private Follower follower;
 
 
         //Limelight Camera
-        //visionDetector = new limelightDetector(hardwareMap);
+        visionDetector = new limelightDetector(hardwareMap);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
@@ -671,11 +669,11 @@ private Follower follower;
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 
-        //double[] visionPosEst =  visionDetector.visualLocalization(new double[]{126, 134.5, 135}, 24, 1);
+        double[] visionPosEst =  visionDetector.visualLocalization(new double[]{126, 134.5, 135}, 24, 1);
 //
-//        telemetry.addData("CameraX", visionPosEst[0] + "");
-//        telemetry.addData("CameraY", visionPosEst[1] + "");
-//        telemetry.addData("CameraTheta", visionPosEst[2] + "");
+        telemetry.addData("CameraX", visionPosEst[0] + "");
+        telemetry.addData("CameraY", visionPosEst[1] + "");
+        telemetry.addData("CameraTheta", visionPosEst[2] + "");
 
 
 //        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");

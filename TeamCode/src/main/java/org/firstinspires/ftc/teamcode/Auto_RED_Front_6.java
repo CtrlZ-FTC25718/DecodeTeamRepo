@@ -542,6 +542,7 @@ public class Auto_RED_Front_6 extends OpMode {
             case 5:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
+                        intake.slapArtifact();
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){

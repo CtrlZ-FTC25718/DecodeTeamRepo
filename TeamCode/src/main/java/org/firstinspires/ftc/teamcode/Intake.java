@@ -28,7 +28,8 @@ public class Intake {
         intakeMotor.setDirection(DcMotorSimple.Direction.FORWARD);
         intakeMotor.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
         intakeMotor.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
-        unJamServo.setDirection(Servo.Direction.FORWARD);
+
+        unJamServo = map.get(Servo.class, "slapServo");
 
         power = 0.0; //Default State: Not Running
         direction = 1; //Default direction is forward (intake mode)
@@ -65,9 +66,15 @@ public class Intake {
         this.update();
     }
     public void slapArtifact(){
+      ElapsedTime slapTimer = new ElapsedTime();
+      double slapReleaseTimer;
+      unJamServo.setPosition(0.0);
+      slapReleaseTimer = slapTimer.milliseconds();
+      while(((slapTimer.milliseconds() - slapReleaseTimer) < 1500)){} //Do Nothing
       unJamServo.setPosition(0.31);
-      double slapTimer;
-      slapTimer = slapTimer.milliseconds();
+    }
+    public void resetSlapper(){
+        unJamServo.setPosition(0.31);
     }
     public double getPower(){
         return power;

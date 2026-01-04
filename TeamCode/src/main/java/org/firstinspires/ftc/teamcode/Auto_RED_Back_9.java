@@ -548,6 +548,7 @@ public class Auto_RED_Back_9 extends OpMode {
             case 5:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtHighSpeed){
+                        intake.slapArtifact();
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed){
@@ -589,6 +590,7 @@ public class Auto_RED_Back_9 extends OpMode {
             case 9:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     if (!shootArtifactAtHighSpeed) {
+                        intake.slapArtifact();
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed) {

@@ -548,6 +548,7 @@ public class Auto_BLUE_Front_9 extends OpMode {
             case 5:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
+                        intake.slapArtifact();
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
@@ -587,6 +588,7 @@ public class Auto_BLUE_Front_9 extends OpMode {
             case 9:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
+                        intake.slapArtifact();
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){

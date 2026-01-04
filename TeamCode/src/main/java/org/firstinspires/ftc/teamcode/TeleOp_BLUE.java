@@ -629,6 +629,10 @@ private Follower follower;
             automatedDrive = true;
         }
 
+        if (gamepad2.rightStickButtonWasPressed()){
+            intake.slapArtifact();
+        }
+
 
 
         /* if(gamepad2.rightBumperWasPressed()){

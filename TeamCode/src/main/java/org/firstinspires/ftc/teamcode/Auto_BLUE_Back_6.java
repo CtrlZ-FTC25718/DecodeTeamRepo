@@ -553,6 +553,7 @@ public class Auto_BLUE_Back_6 extends OpMode {
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed){
+                        intake.unslapArtifact();
                         pathState = 10;
                     }
                 }

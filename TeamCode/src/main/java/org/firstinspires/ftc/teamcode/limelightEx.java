@@ -48,22 +48,22 @@ public class limelightEx {
 
         if (result.isValid()) {
             Pose3D botpose = result.getBotpose();
-            Position coords = botpose.getPosition();
-            coords.toUnit(DistanceUnit.INCH);
-            return this.transform_frame(coords, botpose);
+            return this.transform_frame(botpose);
         }
         else{
             return new double[]{0, 0, 0};
         }
     }
 
-    private double[] transform_frame(Position coords, Pose3D botpose){
+    private double[] transform_frame(Pose3D botpose){
         double x;
         double y;
         double theta;
 
-        x = coords.y + 72;
-        y = -coords.x + 72;
+        Position coords = botpose.getPosition();
+
+        x = coords.y * (39.3700787402) + 72;
+        y = -coords.x * (39.3700787402) + 72;
         theta = botpose.getOrientation().getYaw(AngleUnit.DEGREES) + 270;
         theta = theta % 360;
 

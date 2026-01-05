@@ -546,6 +546,7 @@ public class Auto_RED_Front_6 extends OpMode {
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
+                        intake.unslapArtifact();
                         pathState = 8;
                     }
                 }

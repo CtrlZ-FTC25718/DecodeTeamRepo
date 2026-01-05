@@ -630,7 +630,7 @@ private Follower follower;
         }
 
         if (gamepad2.rightStickButtonWasPressed()){
-            intake.slapArtifact();
+            intake.slapArtifactWithWait();
         }
 
 

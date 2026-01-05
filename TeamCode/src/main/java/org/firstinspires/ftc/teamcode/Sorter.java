@@ -42,7 +42,7 @@ public class Sorter {
         state = new ArrayList<Object>();
         state.add(sorterServo.getPosition()); // state.get/set(0)
         state.add(new String[] {"", "", ""}); // state.get/set(1)
-        state.add("Closed"); // state.get/set(2)
+        state.add(""); // state.get/set(2)
 
         sorterServo.setDirection(Servo.Direction.FORWARD);
         // sorterServo.setPosition(0);

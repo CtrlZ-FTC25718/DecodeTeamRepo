@@ -553,6 +553,7 @@ public class Auto_BLUE_Back_9 extends OpMode {
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed){
+                        intake.unslapArtifact();
                         pathState = 6;
                     }
                 }
@@ -595,6 +596,7 @@ public class Auto_BLUE_Back_9 extends OpMode {
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed) {
+                        intake.unslapArtifact();
                         pathState = 10;
                     }
                 }

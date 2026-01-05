@@ -19,7 +19,7 @@ import java.util.function.Supplier;
 
 @Configurable
 @TeleOp(name = "TeleOp: RED - Vision")
-public class TeleOp_RED_VisionEmbedded extends OpMode {
+public class TeleOp_RED_Vision extends OpMode {
 private Follower follower;
     public Pose startingPose;
     private boolean automatedDrive;
@@ -42,7 +42,9 @@ private Follower follower;
 
     private String teamColor; // Set to Red or Blue
 
-    private limelightDetector visionDetector;
+    private limelightEx visionDetector;
+
+    private double[] visionPosEst;
 
 
     /** This method is call once when init is played, it initializes the follower **/
@@ -51,8 +53,11 @@ private Follower follower;
         // set Team Color to Red or Blue - Should match with the teleOp Name
         teamColor = "Red";
         // Set Starting Pose
-        startingPose = new Pose(72,8.5, Math.toRadians(90));; //See ExampleAuto to understand how to use this
+        // Start with a default localized pose from camera. This can be reset lateron on a button click
 
+        //Limelight Camera
+        visionDetector = new limelightEx(hardwareMap);
+//      startingPose = new Pose(72,8.5, Math.toRadians(90));; //See ExampleAuto to understand how to use this
 
         follower = Constants.createFollower(hardwareMap);
         follower.update();
@@ -99,9 +104,6 @@ private Follower follower;
         // Index 4 used for delaying sorter rotation for shooting
         delayTimer = new double[5]; // create 5 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
 
-
-        //Limelight Camera
-        visionDetector = new limelightDetector(hardwareMap);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
@@ -397,6 +399,10 @@ private Follower follower;
         //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
+        visionPosEst = visionDetector.buffered_localize(30);
+        startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
+        follower.setPose(startingPose);
+        follower.update();
 
 //        sorter.setPosition(0.188);
 //        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
@@ -610,6 +616,9 @@ private Follower follower;
         }
 
         if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
+            // Relocalize using Limelight
+            visionPosEst = visionDetector.buffered_localize(30);
+            startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
             follower.setPose(startingPose);
             follower.update();
 
@@ -669,11 +678,10 @@ private Follower follower;
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
 
-        double[] visionPosEst =  visionDetector.visualLocalization(new double[]{126, 134.5, 135}, 24, 1);
-//
-        telemetry.addData("CameraX", visionPosEst[0] + "");
-        telemetry.addData("CameraY", visionPosEst[1] + "");
-        telemetry.addData("CameraTheta", visionPosEst[2] + "");
+
+//        telemetry.addData("CameraX", Math.round(visionPosEst[0]) + "");
+//        telemetry.addData("CameraY", Math.round(visionPosEst[1]) + "");
+//        telemetry.addData("CameraTheta", Math.round(visionPosEst[2]) + "");
 
 
 //        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");

@@ -100,7 +100,7 @@ public class Auto_RED_Back_9 extends OpMode {
         // Autonomous Path Construction
         farShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(67), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(68), .8))
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -552,6 +552,7 @@ public class Auto_RED_Back_9 extends OpMode {
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed){
+                        intake.unslapArtifact();
                         pathState = 6;
                     }
                 }
@@ -594,6 +595,7 @@ public class Auto_RED_Back_9 extends OpMode {
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed) {
+                        intake.unslapArtifact();
                         pathState = 10;
                     }
                 }

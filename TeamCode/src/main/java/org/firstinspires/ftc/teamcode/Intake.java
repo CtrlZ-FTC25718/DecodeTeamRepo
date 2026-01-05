@@ -66,12 +66,20 @@ public class Intake {
         this.update();
     }
     public void slapArtifact(){
-      ElapsedTime slapTimer = new ElapsedTime();
-      double slapReleaseTimer;
       unJamServo.setPosition(0.0);
-      slapReleaseTimer = slapTimer.milliseconds();
-      while(((slapTimer.milliseconds() - slapReleaseTimer) < 1500)){} //Do Nothing
-      unJamServo.setPosition(0.31);
+    }
+
+    public void unslapArtifact(){
+        unJamServo.setPosition(0.31);
+    }
+
+    public void slapArtifactWithWait(){
+        ElapsedTime slapTimer = new ElapsedTime();
+        double slapReleaseTimer;
+        unJamServo.setPosition(0.0);
+        slapReleaseTimer = slapTimer.milliseconds();
+        while(((slapTimer.milliseconds() - slapReleaseTimer) < 1500)){} //Do Nothing
+        unJamServo.setPosition(0.31);
     }
     public void resetSlapper(){
         unJamServo.setPosition(0.31);

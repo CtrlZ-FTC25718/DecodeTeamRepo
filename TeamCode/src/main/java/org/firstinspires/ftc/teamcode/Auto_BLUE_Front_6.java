@@ -545,6 +545,7 @@ public class Auto_BLUE_Front_6 extends OpMode {
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
+                        intake.unslapArtifact();
                         pathState = 6;
                     }
                     delayTimer[5] = timer.milliseconds();

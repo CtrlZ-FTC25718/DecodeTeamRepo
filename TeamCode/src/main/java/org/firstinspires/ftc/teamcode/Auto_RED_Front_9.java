@@ -210,32 +210,32 @@ public class Auto_RED_Front_9 extends OpMode {
 
                             Log.d("Shooter5p2", "Close shot active");
                             if (shooter.isAtLowVel()) {
-                                Log.d("Shooter5p2", "Shooter reached low Vel");
+                              // Log.d("Shooter5p2", "Shooter reached low Vel");
 
                                 if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
                                     sorter.shift(1);
                                     sorter.update();
-                                    Log.d("ShooterShift", "Sorter Has Shifted");
+                                  // Log.d("ShooterShift", "Sorter Has Shifted");
                                 }
                                 shooter.openBlocker();
 
                                 stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                              // Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
                                 sorter.registerShot();
                                 stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                              // Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
                                 shotCount++;
 
                                 stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                              // Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
 
                                 delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
-                                Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
+                              // Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
                             }
                             else {
-                                Log.d("Shooter7", "Shooter isAtLowVel is false");
+                              // Log.d("Shooter7", "Shooter isAtLowVel is false");
                             }
                         }
 
@@ -553,6 +553,7 @@ public class Auto_RED_Front_9 extends OpMode {
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
+                        intake.unslapArtifact();
                         pathState = 6;
                     }
                 }
@@ -589,10 +590,11 @@ public class Auto_RED_Front_9 extends OpMode {
             case 9:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     if (!shootArtifactAtCustomSpeed) {
-                        this.customShot();
                         intake.slapArtifact();
+                        this.customShot();
                     }
                     if (!isShooting && !shootArtifactAtCustomSpeed) {
+                        intake.unslapArtifact();
                         pathState = -1;
                     }
                 }

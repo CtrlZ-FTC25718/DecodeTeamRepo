@@ -17,11 +17,9 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 
 import java.util.function.Supplier;
 
-import android.util.Log;
-
 @Configurable
-@TeleOp(name = "TeleOp: RED")
-public class TeleOp_RED extends OpMode {
+@TeleOp(name = "TeleOp: BLUE Vision")
+public class TeleOp_BLUE_Vision extends OpMode {
 private Follower follower;
     public Pose startingPose;
     private boolean automatedDrive;
@@ -44,15 +42,17 @@ private Follower follower;
 
     private String teamColor; // Set to Red or Blue
 
-    //private limelightDetector visionDetector;
+    private limelightEx visionDetector;
 
-
+    private double[] visionPosEst;
     /** This method is call once when init is played, it initializes the follower **/
     @Override
     public void init() {
         // set Team Color to Red or Blue - Should match with the teleOp Name
-        teamColor = "Red";
+        teamColor = "Blue";
         // Set Starting Pose
+        //Limelight Camera
+        visionDetector = new limelightEx(hardwareMap);
         startingPose = new Pose(72,8.5, Math.toRadians(90));; //See ExampleAuto to understand how to use this
 
 
@@ -62,18 +62,18 @@ private Follower follower;
         
         
         farShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(67), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 25))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(117), .8))
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(90, 90))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(62, 90))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), .8))
                 .build();
 
         endgameChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(38, 38))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(108, 38))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(180), .8))
                 .build();
 
         intake = new Intake(hardwareMap);
@@ -102,8 +102,6 @@ private Follower follower;
         delayTimer = new double[5]; // create 5 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
 
 
-        //Limelight Camera
-        //visionDetector = new limelightDetector(hardwareMap);
     }
 
     /** This method is called continuously after Init while waiting to be started. **/
@@ -399,12 +397,15 @@ private Follower follower;
         //In order to use float mode, add .useBrakeModeInTeleOp(true); to your Drivetrain Constants in Constant.java (for Mecanum)
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
+        visionPosEst = visionDetector.buffered_localize(30);
+        startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
+        follower.setPose(startingPose);
+        follower.update();
 
 //        sorter.setPosition(0.188);
 //        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
         sorter.door("Close");
         sorter.update();
-        intake.resetSlapper();
 
         shooter.setVelocity("Idle");
     }
@@ -612,9 +613,10 @@ private Follower follower;
         }
 
         if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
+            visionPosEst = visionDetector.buffered_localize(30);
+            startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
             follower.setPose(startingPose);
             follower.update();
-
         }
 
         if(gamepad2.rightBumperWasPressed()){
@@ -635,6 +637,7 @@ private Follower follower;
             follower.followPath(endgameChain.get(), 1, false);
             automatedDrive = true;
         }
+
         if (gamepad2.rightStickButtonWasPressed()){
             intake.slapArtifactWithWait();
         }
@@ -662,21 +665,14 @@ private Follower follower;
 //        telemetry.addData("IsAutomatedDriveMode: ", "" + automatedDrive);
 //        telemetry.addData("SorterFull: ", sorter.isFull());
 
-        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
-        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
+//        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
+//        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
 
 //        telemetry.addData("SorterPos: ", sorter.getPosition());
 
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
-
-        //double[] visionPosEst =  visionDetector.visualLocalization(new double[]{126, 134.5, 135}, 24, 1);
-//
-//        telemetry.addData("CameraX", visionPosEst[0] + "");
-//        telemetry.addData("CameraY", visionPosEst[1] + "");
-//        telemetry.addData("CameraTheta", visionPosEst[2] + "");
-
 
 //        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
 //        telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);

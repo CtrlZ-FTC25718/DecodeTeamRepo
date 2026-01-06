@@ -55,7 +55,7 @@ public class Sorter {
 
     public void shift(int numberPositions){
         //Update sorterServo Position to reflect shift
-        state.set(0, (double) state.get(0) + .069 * numberPositions);
+        state.set(0, (double) state.get(0) + .0715 * numberPositions); // was 0.069
 
         //Initialize temporary storage for shuffling
         String temp = "";

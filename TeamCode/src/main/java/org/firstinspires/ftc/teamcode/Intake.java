@@ -78,7 +78,7 @@ public class Intake {
         double slapReleaseTimer;
         unJamServo.setPosition(0.0);
         slapReleaseTimer = slapTimer.milliseconds();
-        while(((slapTimer.milliseconds() - slapReleaseTimer) < 1500)){} //Do Nothing
+        while(((slapTimer.milliseconds() - slapReleaseTimer) < 500)){} //Do Nothing
         unJamServo.setPosition(0.31);
     }
     public void resetSlapper(){

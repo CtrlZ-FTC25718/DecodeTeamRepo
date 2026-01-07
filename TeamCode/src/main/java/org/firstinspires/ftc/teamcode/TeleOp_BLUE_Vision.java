@@ -631,8 +631,11 @@ private Follower follower;
             }
         }
 
-        if(gamepad2.rightBumperWasPressed()){
-            toggleDirection();
+        if((gamepad2.rightBumperWasPressed() || gamepad2.rightBumperWasReleased()) && (gamepad2.leftStickButtonWasPressed() || gamepad2.leftStickButtonWasReleased())){
+            //toggleDirection();
+            intake.setIntakeState(false);
+            intake.update();
+            shooter.setVelocity("Idle");
 
         }
 

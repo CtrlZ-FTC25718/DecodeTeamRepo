@@ -51,7 +51,7 @@ public class limelightEx {
             return this.transform_frame(botpose);
         }
         else{
-            return new double[]{0, 0, 0};
+            return new double[]{1000, 1000, 1000}; // Return absurd value
         }
     }
 

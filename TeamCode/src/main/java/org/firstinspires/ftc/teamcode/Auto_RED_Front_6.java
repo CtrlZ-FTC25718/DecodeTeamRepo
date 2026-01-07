@@ -21,7 +21,7 @@ import java.util.function.Supplier;
 import android.util.Log;
 
 @Configurable
-@Autonomous(name = "Auto: RED: Front - 6")
+@Autonomous(name = "RED: Front - 6")
 public class Auto_RED_Front_6 extends OpMode {
     private Follower follower;
     public Pose startingPose;

@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 import java.util.function.Supplier;
 
 @Configurable
-@TeleOp(name = "TeleOp: BLUE Vision")
+@TeleOp(name = "BLUE Vision")
 public class TeleOp_BLUE_Vision extends OpMode {
 private Follower follower;
     public Pose startingPose;
@@ -398,9 +398,15 @@ private Follower follower;
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
         visionPosEst = visionDetector.buffered_localize(30);
-        startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
-        follower.setPose(startingPose);
-        follower.update();
+        if((visionPosEst[0] != 1000) || (visionPosEst[1] != 1000) || (visionPosEst[2] != 1000)){
+            startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
+            follower.setPose(startingPose);
+            follower.update();
+
+            sorter.initializeIndicatorColor();
+            gamepad1.rumble(500);
+            gamepad2.rumble(500);
+        }
 
 //        sorter.setPosition(0.188);
 //        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
@@ -614,9 +620,15 @@ private Follower follower;
 
         if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
             visionPosEst = visionDetector.buffered_localize(30);
-            startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
-            follower.setPose(startingPose);
-            follower.update();
+            if((visionPosEst[0] != 1000) || (visionPosEst[1] != 1000) || (visionPosEst[2] != 1000)){
+                startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
+                follower.setPose(startingPose);
+                follower.update();
+
+                sorter.initializeIndicatorColor();
+                gamepad1.rumble(500);
+                gamepad2.rumble(500);
+            }
         }
 
         if(gamepad2.rightBumperWasPressed()){

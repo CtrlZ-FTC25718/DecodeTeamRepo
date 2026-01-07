@@ -20,7 +20,7 @@ import java.util.function.Supplier;
 import android.util.Log;
 
 @Configurable
-@TeleOp(name = "TeleOp: RED")
+@TeleOp(name = "RED")
 public class TeleOp_RED extends OpMode {
 private Follower follower;
     public Pose startingPose;

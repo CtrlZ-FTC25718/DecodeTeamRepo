@@ -21,7 +21,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 import java.util.function.Supplier;
 
 @Configurable
-@Autonomous(name = "Auto: RED: Front - 9")
+@Autonomous(name = "RED: Front - 9")
 public class Auto_RED_Front_9 extends OpMode {
     private Follower follower;
     public Pose startingPose;

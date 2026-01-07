@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 import java.util.function.Supplier;
 
 @Configurable
-@TeleOp(name = "TeleOp: RED - Vision")
+@TeleOp(name = "RED - Vision")
 public class TeleOp_RED_Vision extends OpMode {
 private Follower follower;
     public Pose startingPose;
@@ -400,9 +400,15 @@ private Follower follower;
         //If you don't pass anything in, it uses the default (false)
         follower.startTeleopDrive();
         visionPosEst = visionDetector.buffered_localize(30);
-        startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
-        follower.setPose(startingPose);
-        follower.update();
+        if((visionPosEst[0] != 1000) || (visionPosEst[1] != 1000) || (visionPosEst[2] != 1000)){
+            startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
+            follower.setPose(startingPose);
+            follower.update();
+
+            sorter.initializeIndicatorColor();
+            gamepad1.rumble(500);
+            gamepad2.rumble(500);
+        }
 
 //        sorter.setPosition(0.188);
 //        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
@@ -618,9 +624,15 @@ private Follower follower;
         if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
             // Relocalize using Limelight
             visionPosEst = visionDetector.buffered_localize(30);
-            startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
-            follower.setPose(startingPose);
-            follower.update();
+            if((visionPosEst[0] != 1000) || (visionPosEst[1] != 1000) || (visionPosEst[2] != 1000)){
+                startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
+                follower.setPose(startingPose);
+                follower.update();
+
+                sorter.initializeIndicatorColor();
+                gamepad1.rumble(500);
+                gamepad2.rumble(500);
+            }
 
         }
 
@@ -669,19 +681,19 @@ private Follower follower;
 //        telemetry.addData("IsAutomatedDriveMode: ", "" + automatedDrive);
 //        telemetry.addData("SorterFull: ", sorter.isFull());
 
-        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
-        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
+//        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
+//        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
 
 //        telemetry.addData("SorterPos: ", sorter.getPosition());
 
-        telemetry.addData("X", follower.getPose().getX());
-        telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("X", Math.round(10.0*follower.getPose().getX())/10.0);
+        telemetry.addData("Y", Math.round(10.0*follower.getPose().getY())/10.0);
+        telemetry.addData("Heading in Degrees", Math.round(10.0*Math.toDegrees(follower.getPose().getHeading()))/10.0);
 
 
-//        telemetry.addData("CameraX", Math.round(visionPosEst[0]) + "");
-//        telemetry.addData("CameraY", Math.round(visionPosEst[1]) + "");
-//        telemetry.addData("CameraTheta", Math.round(visionPosEst[2]) + "");
+        telemetry.addData("CameraX", Math.round(10.0* visionPosEst[0])/10.0 + "");
+        telemetry.addData("CameraY", Math.round(10.0*visionPosEst[1])/10.0 + "");
+        telemetry.addData("CameraTheta", Math.round(10.0*visionPosEst[2])/10.0 + "");
 
 
 //        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");

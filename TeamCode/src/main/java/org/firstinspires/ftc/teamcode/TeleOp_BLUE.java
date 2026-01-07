@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 import java.util.function.Supplier;
 
 @Configurable
-@TeleOp(name = "TeleOp: BLUE")
+@TeleOp(name = "BLUE")
 public class TeleOp_BLUE extends OpMode {
 private Follower follower;
     public Pose startingPose;

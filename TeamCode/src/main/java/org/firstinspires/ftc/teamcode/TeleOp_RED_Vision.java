@@ -66,7 +66,7 @@ private Follower follower;
         
         farShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(67), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(68), .8))
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -658,7 +658,7 @@ private Follower follower;
             automatedDrive = true;
         }
         if (gamepad2.rightStickButtonWasPressed()){
-            intake.slapArtifact();
+            intake.slapArtifactWithWait();
         }
 
 

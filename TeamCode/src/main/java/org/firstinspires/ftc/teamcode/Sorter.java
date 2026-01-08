@@ -138,7 +138,7 @@ public class Sorter {
         if(input.equals("Open")){
             state.set(2, "Opened");
         }
-        else{
+        else if (input.equals("Close")){
             state.set(2, "Closed");
         }
     }
@@ -252,7 +252,7 @@ public class Sorter {
         if(state.get(2).equals("Opened")){
             doorServo.setPosition(doorOpenedPos);
         }
-        else{
+        else if (state.get(2).equals("Closed")){
             doorServo.setPosition(doorClosedPos);
         }
     }

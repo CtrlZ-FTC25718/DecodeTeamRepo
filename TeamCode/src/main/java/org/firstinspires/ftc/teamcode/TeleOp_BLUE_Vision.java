@@ -412,7 +412,8 @@ private Follower follower;
 //        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
         sorter.door("Close");
         sorter.update();
-
+        shooter.closeBlocker();
+        intake.resetSlapper();
         shooter.setVelocity("Idle");
     }
 
@@ -688,6 +689,10 @@ private Follower follower;
         telemetry.addData("X", follower.getPose().getX());
         telemetry.addData("Y", follower.getPose().getY());
         telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+
+        telemetry.addData("CameraX", Math.round(10.0* visionPosEst[0])/10.0 + "");
+        telemetry.addData("CameraY", Math.round(10.0*visionPosEst[1])/10.0 + "");
+        telemetry.addData("CameraTheta", Math.round(10.0*visionPosEst[2])/10.0 + "");
 
 //        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
 //        telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);

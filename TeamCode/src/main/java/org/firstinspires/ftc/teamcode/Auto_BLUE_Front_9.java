@@ -93,6 +93,8 @@ public class Auto_BLUE_Front_9 extends OpMode {
 
         // Autonomous Initialization
         shotParametersComputed = false;
+        shooter.closeBlocker();
+        intake.resetSlapper();
         pathState = 0;
         sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State for Preloads
 

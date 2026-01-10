@@ -414,6 +414,7 @@ private Follower follower;
 //        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
         sorter.door("Close");
         sorter.update();
+        shooter.closeBlocker();
         intake.resetSlapper();
 
         shooter.setVelocity("Idle");

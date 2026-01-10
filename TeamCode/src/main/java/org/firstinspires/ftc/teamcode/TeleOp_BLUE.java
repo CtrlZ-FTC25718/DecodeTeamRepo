@@ -396,6 +396,8 @@ private Follower follower;
 
 //        sorter.setPosition(0.188);
 //        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
+        shooter.closeBlocker();
+        intake.resetSlapper();
         sorter.door("Close");
         sorter.update();
 

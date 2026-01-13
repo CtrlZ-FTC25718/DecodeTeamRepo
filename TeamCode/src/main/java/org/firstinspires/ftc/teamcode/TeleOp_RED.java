@@ -117,12 +117,12 @@ private Follower follower;
     }
 
     private void shootArtifact (){
-        if (timerExpired(3,1000)){
+        if (timerExpired(3,500)){
             //Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
 //                Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
-                if  (timerExpired(4, 750)) {
+                if  (timerExpired(4, 500)) {
 //                    Log.d("Shooter3", "Sorter Timer Expired");
 
                     if (sorter.hasDoorOpened()) {
@@ -291,7 +291,7 @@ private Follower follower;
         if(sorter.isFull() && delayTimer[0] == 0){
             delayTimer[0] = timer.milliseconds(); // Start a new timer to stop the intake and reject artifacts
             // startShooter for initial spin up (will reduce velocity Hold time to overcome inertia
-            shooter.setVelocity("Low");
+            shooter.setVelocity("High"); // was "Low"
         }
 
         if((timerExpired(2, 250) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
@@ -318,14 +318,14 @@ private Follower follower;
                 if(delayTimer[1] == 0){
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                 }
-                if(timerExpired(1, 1)){
+//                if(timerExpired(1, 0)){
                     sorter.shift(1); //If ball has been taken in & sorter once (used to sort twice)
                     sorter.update();
                     delayTimer[1] = 0;
                     delayTimer[2] = timer.milliseconds();
                     //Log.d("Shifting2", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
 
-                }
+//                }
             }
         }
 

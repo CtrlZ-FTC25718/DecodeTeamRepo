@@ -26,7 +26,7 @@ public class Sorter {
     private final double doorOpenedPos = 0.2;
 
     private final double doorClosedPos = 0.55;
-    private static final double sorterZeroPos = 0.055; // was 0.07
+    private static final double sorterZeroPos = 0.0385; // was 0.07
     private double distance;
 
     //Constructor

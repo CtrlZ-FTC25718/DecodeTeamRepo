@@ -154,12 +154,12 @@ public class Auto_RED_Front_6 extends OpMode {
     private void shootArtifact (){
         Log.d("Shooter0","Inside ShootArtifact");
         isShooting = true;
-        if (timerExpired(3,1000)){
+        if (timerExpired(3,500)){
             Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
                 Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
-                if  (timerExpired(4, 750)) {
+                if  (timerExpired(4, 500)) {
                     Log.d("Shooter3", "Sorter Timer Expired");
 
                     if (sorter.hasDoorOpened()) {

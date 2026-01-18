@@ -71,7 +71,7 @@ private Follower follower;
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(90, 90))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(45), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(49), .8))
                 .build();
 
         endgameChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -359,27 +359,31 @@ private Follower follower;
         - Robot-Centric Mode: true
         */
 
-            double rsy = gamepad1.right_stick_y;
-            double rsx = gamepad1.right_stick_x;
-            double lsx = gamepad1.left_stick_x;
+            double rsx, rsy, lsx;
+            if(Math.abs(gamepad1.right_stick_x) > 0.5) {
+                rsx = gamepad1.right_stick_x;
+            }
+            else {rsx = 0.0;}
+            rsy = gamepad1.right_stick_y;
+            lsx = gamepad1.left_stick_x;
 
             //This is how it looks with slowMode on
             // Scale normal driving as a quadratic X^2
             if (!slowMode) {
 
-                if (rsy > 0){ rsy = -1.5*Math.pow(rsy,2);}
-                else {rsy = 1.5*Math.pow(rsy,2);}
-
-                if (rsx > 0){ rsx = -1.5*Math.pow(rsx,2);}
-                else {rsx = 1.5*Math.pow(rsx,2);}
-
-                if (lsx > 0){ lsx = -1.5*Math.pow(lsx,2);}
-                else {lsx = 1.5*Math.pow(lsx,2);}
+//                if (rsy > 0){ rsy = -1.5*Math.pow(rsy,2);}
+//                else {rsy = 1.5*Math.pow(rsy,2);}
+//
+//                if (rsx > 0){ rsx = -1.5*Math.pow(rsx,2);}
+//                else {rsx = 1.5*Math.pow(rsx,2);}
+//
+//                if (lsx > 0){ lsx = -1.5*Math.pow(lsx,2);}
+//                else {lsx = 1.5*Math.pow(lsx,2);}
 
                 follower.setTeleOpDrive(
-                        rsy,
-                        rsx,
-                        lsx,
+                        -rsy,
+                        -rsx,
+                        -lsx,
                         true // Robot Centric
                 );
             }

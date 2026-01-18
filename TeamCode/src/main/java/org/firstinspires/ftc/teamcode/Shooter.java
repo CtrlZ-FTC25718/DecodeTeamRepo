@@ -29,7 +29,7 @@ public class Shooter {
 
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1370, 1625, 1370, 1575, 0, 0, 0, 0};
+    private final double[] shooterVel = {1350, 1600, 1350, 1550, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     private double robotEnergy;
@@ -98,7 +98,7 @@ public class Shooter {
         double exitVel = Math.sqrt((-16 * Math.pow(delta, 2)) / ((3.5 - delta * Math.tan(theta) - 0.5) * (Math.pow(Math.cos(theta), 2))));
 
         //Compute shooter target speed
-        double realOmega = (2 / 0.23622) * (28 / (2 * Math.PI)) * (1 / 0.51) * exitVel; // shot energy transfer efficiency is an estimate of 45%
+        double realOmega = (2 / 0.23622) * (28 / (2 * Math.PI)) * (1 / 0.52) * exitVel; // shot energy transfer efficiency is an estimate of 45%
 
         //Compute the angle the robot should turn to
         double psi = Math.toDegrees(Math.atan2(target_y - global_y, target_x - global_x));

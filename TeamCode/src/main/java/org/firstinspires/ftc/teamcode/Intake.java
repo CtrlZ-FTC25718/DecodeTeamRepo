@@ -70,7 +70,7 @@ public class Intake {
     }
 
     public void unslapArtifact(){
-        unJamServo.setPosition(0.31);
+        unJamServo.setPosition(0.35);
     }
 
     public void slapArtifactWithWait(){
@@ -79,10 +79,10 @@ public class Intake {
         unJamServo.setPosition(0.0);
         slapReleaseTimer = slapTimer.milliseconds();
         while(((slapTimer.milliseconds() - slapReleaseTimer) < 500)){} //Do Nothing
-        unJamServo.setPosition(0.31);
+        unJamServo.setPosition(0.35);
     }
     public void resetSlapper(){
-        unJamServo.setPosition(0.31);
+        unJamServo.setPosition(0.35);
     }
     public double getPower(){
         return power;

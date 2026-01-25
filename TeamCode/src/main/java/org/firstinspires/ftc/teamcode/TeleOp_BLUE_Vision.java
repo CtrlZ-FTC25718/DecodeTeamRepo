@@ -59,11 +59,11 @@ private Follower follower;
         follower = Constants.createFollower(hardwareMap);
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-        
-        
+
+
         farShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 25))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(117), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(115), .8))
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -115,12 +115,21 @@ private Follower follower;
     }
 
     private void shootArtifact (){
-        if (timerExpired(3,1000)){
+        double sorterDoorWaitTime, sorterVaneWaitTime;
+        if (shootArtifactAtHighSpeed){
+            sorterDoorWaitTime = 750;
+            sorterVaneWaitTime = 750;
+        }
+        else {
+            sorterDoorWaitTime = 500;
+            sorterVaneWaitTime = 500;
+        }
+        if (timerExpired(3,sorterDoorWaitTime)){
             //Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
 //                Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
-                if  (timerExpired(4, 750)) {
+                if  (timerExpired(4, sorterVaneWaitTime)) {
 //                    Log.d("Shooter3", "Sorter Timer Expired");
 
                     if (sorter.hasDoorOpened()) {
@@ -357,9 +366,13 @@ private Follower follower;
         - Robot-Centric Mode: true
         */
 
-            double rsy = gamepad1.right_stick_y;
-            double rsx = gamepad1.right_stick_x;
-            double lsx = gamepad1.left_stick_x;
+            double rsx, rsy, lsx;
+            if(Math.abs(gamepad1.right_stick_x) > 0.5) {
+                rsx = gamepad1.right_stick_x;
+            }
+            else {rsx = 0.0;}
+            rsy = gamepad1.right_stick_y;
+            lsx = gamepad1.left_stick_x;
 
             //This is how it looks with slowMode on
             // Scale normal driving as a quadratic X^2
@@ -375,9 +388,9 @@ private Follower follower;
 //                else {lsx = 1.5*Math.pow(lsx,2);}
 
                 follower.setTeleOpDrive(
-                        rsy,
-                        rsx,
-                        lsx,
+                        -rsy,
+                        -rsx,
+                        -lsx,
                         true // Robot Centric
                 );
             }
@@ -389,6 +402,7 @@ private Follower follower;
             );
         }
     }
+
 
     /** This method is called once at the start of the OpMode. **/
     @Override

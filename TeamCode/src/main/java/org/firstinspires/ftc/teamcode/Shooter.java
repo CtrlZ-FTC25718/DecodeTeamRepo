@@ -29,7 +29,7 @@ public class Shooter {
 
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1350, 1600, 1350, 1550, 0, 0, 0, 0};
+    private final double[] shooterVel = {1350, 1700, 1350, 1600, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     private double robotEnergy;
@@ -123,7 +123,7 @@ public class Shooter {
         switch (level) {
             case "High":
                 //while (shooterBack.getVelocity() < (shooterVel[3]-50) && shooterFront.getVelocity() < (shooterVel[1]-50) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1) {
-                while((shooterBack.getVelocity() + shooterFront.getVelocity())/2 < (shooterVel[3]) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1){
+                while((shooterBack.getVelocity() + shooterFront.getVelocity())/2 < ((shooterVel[3] + shooterVel[1]) /2) && shooterFront.getPower() != 1 && shooterBack.getPower() != 1){
                     shooterBack.setPower(robotEnergy * (shooterBack.getPower() + rate));
                     shooterFront.setPower(robotEnergy * (shooterFront.getPower() + rate));
 //                    Log.d("Velocity Hold Target","High Velocity Hold - Waiting for Front to be " + shooterVel[1]);
@@ -206,7 +206,7 @@ public class Shooter {
     public boolean isAtHighVel() {
         //return true;
        // return ((getShooterFrontVel() >= (shooterVel[1] - 50)) && (getShooterBackVel() >= (shooterVel[3] - 50)));
-        return ((getShooterFrontVel() + getShooterBackVel())/2 >= (shooterVel[1]));
+        return ((getShooterFrontVel() + getShooterBackVel())/2 >= (shooterVel[1]+shooterVel[3])/2);
     }
 
     public boolean isAtLowVel() {

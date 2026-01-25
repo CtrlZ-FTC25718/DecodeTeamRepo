@@ -102,7 +102,7 @@ public class Auto_RED_Back_9 extends OpMode {
         // Autonomous Path Construction
         farShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(68), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(70), .8))
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -159,12 +159,12 @@ public class Auto_RED_Back_9 extends OpMode {
     private void shootArtifact (){
         Log.d("Shooter0","Inside ShootArtifact");
         isShooting = true;
-        if (timerExpired(3,500)){
+        if (timerExpired(3,750)){
             Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
                 Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
-                if  (timerExpired(4, 500)) {
+                if  (timerExpired(4, 750)) {
                     Log.d("Shooter3", "Sorter Timer Expired");
 
                     if (sorter.hasDoorOpened()) {

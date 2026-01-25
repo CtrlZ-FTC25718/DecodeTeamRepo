@@ -66,7 +66,7 @@ private Follower follower;
         
         farShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(68), .8))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(70), .8))
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
@@ -117,12 +117,22 @@ private Follower follower;
     }
 
     private void shootArtifact (){
-        if (timerExpired(3,500)){
+        double sorterDoorWaitTime, sorterVaneWaitTime;
+        if (shootArtifactAtHighSpeed){
+            sorterDoorWaitTime = 750;
+            sorterVaneWaitTime = 750;
+        }
+        else {
+            sorterDoorWaitTime = 500;
+            sorterVaneWaitTime = 500;
+        }
+
+        if (timerExpired(3,sorterDoorWaitTime)){
             //Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
 //                Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
-                if  (timerExpired(4, 500)) {
+                if  (timerExpired(4, sorterVaneWaitTime)) {
 //                    Log.d("Shooter3", "Sorter Timer Expired");
 
                     if (sorter.hasDoorOpened()) {

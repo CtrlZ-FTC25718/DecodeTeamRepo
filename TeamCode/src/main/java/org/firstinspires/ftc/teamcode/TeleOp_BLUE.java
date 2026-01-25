@@ -111,12 +111,21 @@ private Follower follower;
     }
 
     private void shootArtifact (){
-        if (timerExpired(3,1000)){
+        double sorterDoorWaitTime, sorterVaneWaitTime;
+        if (shootArtifactAtHighSpeed){
+            sorterDoorWaitTime = 750;
+            sorterVaneWaitTime = 750;
+        }
+        else {
+            sorterDoorWaitTime = 500;
+            sorterVaneWaitTime = 500;
+        }
+        if (timerExpired(3,sorterDoorWaitTime)){
             //Log.d("Shooter1", "Sorter Door Timer Expired");
 
             if(!sorter.isEmpty()){
 //                Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
-                if  (timerExpired(4, 750)) {
+                if  (timerExpired(4, sorterVaneWaitTime)) {
 //                    Log.d("Shooter3", "Sorter Timer Expired");
 
                     if (sorter.hasDoorOpened()) {
@@ -353,27 +362,31 @@ private Follower follower;
         - Robot-Centric Mode: true
         */
 
-            double rsy = gamepad1.right_stick_y;
-            double rsx = gamepad1.right_stick_x;
-            double lsx = gamepad1.left_stick_x;
+            double rsx, rsy, lsx;
+            if(Math.abs(gamepad1.right_stick_x) > 0.5) {
+                rsx = gamepad1.right_stick_x;
+            }
+            else {rsx = 0.0;}
+            rsy = gamepad1.right_stick_y;
+            lsx = gamepad1.left_stick_x;
 
             //This is how it looks with slowMode on
             // Scale normal driving as a quadratic X^2
             if (!slowMode) {
+
+//                if (rsy > 0){ rsy = -1.5*Math.pow(rsy,3);}
+//                else {rsy = 1.5*Math.pow(rsy,3);}
 //
-//                if (rsy > 0){ rsy = -1.5*Math.pow(rsy,2);}
-//                else {rsy = 1.5*Math.pow(rsy,2);}
+//                if (rsx > 0){ rsx = -1.5*Math.pow(rsx,3);}
+//                else {rsx = 1.5*Math.pow(rsx,3);}
 //
-//                if (rsx > 0){ rsx = -1.5*Math.pow(rsx,2);}
-//                else {rsx = 1.5*Math.pow(rsx,2);}
-//
-//                if (lsx > 0){ lsx = -1.5*Math.pow(lsx,2);}
-//                else {lsx = 1.5*Math.pow(lsx,2);}
+//                if (lsx > 0){ lsx = -1.5*Math.pow(lsx,3);}
+//                else {lsx = 1.5*Math.pow(lsx,3);}
 
                 follower.setTeleOpDrive(
-                        rsy,
-                        rsx,
-                        lsx,
+                        -rsy,
+                        -rsx,
+                        -lsx,
                         true // Robot Centric
                 );
             }

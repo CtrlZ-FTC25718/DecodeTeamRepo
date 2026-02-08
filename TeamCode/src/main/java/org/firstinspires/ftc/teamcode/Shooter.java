@@ -25,11 +25,11 @@ public class Shooter {
 
     private VoltageSensor voltmeter;
 
-    private final double idealVoltage = 13.1; // Full charge voltage on the battery
+    private final double idealVoltage = 13.2; // Full charge voltage on the battery
 
     // In Tics/Sec: Front Low, Front High, Back Low, Back High, idle front, idle back, custom front, custom back
 
-    private final double[] shooterVel = {1350, 1700, 1350, 1600, 0, 0, 0, 0};
+    private final double[] shooterVel = {1325, 1600, 1350, 1600, 0, 0, 0, 0};
     private final double[] targetPos = {140, 140, 0, 140}; // Holds RedTargetX, RedTargetY, BlueTargetX, BlueTargetY
 
     private double robotEnergy;

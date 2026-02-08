@@ -531,7 +531,7 @@ public class Auto_RED_Back_9 extends OpMode {
 
             case 3:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
-                    follower.followPath(firstCollectionChain_1.get(), 1, true);
+                    follower.followPath(firstCollectionChain_1.get(), true);
                     pathState = 4;
                     pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
@@ -548,9 +548,11 @@ public class Auto_RED_Back_9 extends OpMode {
                 }
                 break;
             case 5:
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                    intake.slapArtifact();
+                }
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtHighSpeed){
-                        intake.slapArtifact();
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed){
@@ -572,7 +574,7 @@ public class Auto_RED_Back_9 extends OpMode {
 
             case 7:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000) {
-                    follower.followPath(secondCollectionChain_1.get(), 1, true);
+                    follower.followPath(secondCollectionChain_1.get(), true);
 //                    Log.d("StateReached: ", "State 7");
                     pathState = 8;
                     pathChainTimer = timer.milliseconds();
@@ -591,9 +593,11 @@ public class Auto_RED_Back_9 extends OpMode {
                 break;
 
             case 9:
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                    intake.slapArtifact();
+                }
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000) {
                     if (!shootArtifactAtHighSpeed) {
-                        intake.slapArtifact();
                         this.farShot();
                     }
                     if (!isShooting && !shootArtifactAtHighSpeed) {
@@ -605,7 +609,7 @@ public class Auto_RED_Back_9 extends OpMode {
 
             case 10:
                 if(!follower.isBusy()) {
-                    follower.followPath(endingChain.get(), 1.0, true);
+                    follower.followPath(endingChain.get(), true);
 //                    Log.d("StateReached: ", "State 7");
                     pathState = -1;
                     delayTimer[5] = timer.milliseconds();

@@ -54,7 +54,7 @@ public class Auto_BLUE_Front_9 extends OpMode {
         // set Team Color to Red or Blue - Should match with the teleOp Name
         teamColor = "Blue";
         // Set Starting Pose
-        startingPose= new Pose(32.5,136, Math.toRadians(-90));; //See ExampleAuto to understand how to use this
+        startingPose= new Pose(22,124, Math.toRadians(135));; //See ExampleAuto to understand how to use this
 //        startingPose= new Pose(124,124, Math.toRadians(45));;
 
         follower = Constants.createFollower(hardwareMap);
@@ -548,9 +548,11 @@ public class Auto_BLUE_Front_9 extends OpMode {
                 }
                 break;
             case 5:
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                    intake.slapArtifact();
+                }
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
-                        intake.slapArtifact();
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
@@ -589,6 +591,9 @@ public class Auto_BLUE_Front_9 extends OpMode {
                 }
                 break;
             case 9:
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                    intake.slapArtifact();
+                }
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
                         intake.slapArtifact();

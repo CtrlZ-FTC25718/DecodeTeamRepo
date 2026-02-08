@@ -55,7 +55,7 @@ public class Auto_RED_Front_6 extends OpMode {
         // set Team Color to Red or Blue - Should match with the teleOp Name
         teamColor = "Red";
         // Set Starting Pose
-        startingPose= new Pose(111.5,135, Math.toRadians(-90));; //See ExampleAuto to understand how to use this
+        startingPose= new Pose(122,124, Math.toRadians(45));; //See ExampleAuto to understand how to use this
 //        startingPose= new Pose(124,124, Math.toRadians(45));;
 
         follower = Constants.createFollower(hardwareMap);
@@ -116,11 +116,11 @@ public class Auto_RED_Front_6 extends OpMode {
                 .build();
 
         secondCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 62))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 59))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
         secondCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(136, 62))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(136, 59))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
 
@@ -542,9 +542,12 @@ public class Auto_RED_Front_6 extends OpMode {
                 }
                 break;
             case 5:
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                    intake.slapArtifact();
+                }
+
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
-                        intake.slapArtifact();
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){

@@ -54,7 +54,7 @@ public class Auto_BLUE_Front_6 extends OpMode {
         // set Team Color to Red or Blue - Should match with the teleOp Name
         teamColor = "Blue";
         // Set Starting Pose
-        startingPose= new Pose(32.5,135, Math.toRadians(-90));; //See ExampleAuto to understand how to use this
+        startingPose= new Pose(22, 124, Math.toRadians(135));; //See ExampleAuto to understand how to use this
 //        startingPose= new Pose(124,124, Math.toRadians(45));;
 
         follower = Constants.createFollower(hardwareMap);
@@ -519,8 +519,8 @@ public class Auto_BLUE_Front_6 extends OpMode {
                     follower.followPath(firstCollectionChain_0.get(), true);
                     pathState = 3;
                     pathChainTimer = timer.milliseconds();
-                    break;
                 }
+                break;
 
             case 3:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
@@ -528,8 +528,8 @@ public class Auto_BLUE_Front_6 extends OpMode {
                     pathState = 4;
                     pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
-                    break;
                 }
+                break;
 
             case 4:
                 if ((!follower.isBusy() && timerExpired(5,2000)) || (timer.milliseconds() - pathChainTimer) >= 3000) {
@@ -538,12 +538,14 @@ public class Auto_BLUE_Front_6 extends OpMode {
                     pathState = 5;
                     pathChainTimer = timer.milliseconds();
                     shotParametersComputed = false;
-                    break;
                 }
+                break;
             case 5:
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                    intake.slapArtifact();
+                }
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
                     if (!shootArtifactAtLowSpeed){
-                        intake.slapArtifact();
                         this.closeShot();
                     }
                     if (!isShooting && !shootArtifactAtLowSpeed){
@@ -551,17 +553,17 @@ public class Auto_BLUE_Front_6 extends OpMode {
                         pathState = 6;
                     }
                     delayTimer[5] = timer.milliseconds();
-                    break;
                 }
+                break;
 
             case 6:
-                if(!follower.isBusy() && timerExpired(5,2000)) {
+                if(!follower.isBusy()) {
                     follower.followPath(endingChain.get(), 1.0, true);
 //                    Log.d("StateReached: ", "State 7");
                     pathState = -1;
                     delayTimer[5] = timer.milliseconds();
-                    break;
                 }
+                break;
         }
 
         stack = sorter.getArtifactStack();

@@ -126,7 +126,7 @@ public class Auto_BLUE_Front_6_OpenGate extends OpMode {
         openGateChain = () -> follower.pathBuilder() //Lazy Curve Generation
                 .addPath(new Path(new BezierLine(follower::getPose, new Pose(28, 85))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(135)))
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(17, 79))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(15, 79))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(90)))
                 .build();
 

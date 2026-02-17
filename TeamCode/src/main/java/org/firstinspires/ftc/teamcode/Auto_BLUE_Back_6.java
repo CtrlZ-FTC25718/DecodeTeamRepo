@@ -549,7 +549,7 @@ public class Auto_BLUE_Back_6 extends OpMode {
                 }
                 break;
             case 5:
-                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1200 && (timer.milliseconds() - pathChainTimer) <= 3000)){
                     intake.slapArtifact();
                 }
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
@@ -593,7 +593,7 @@ public class Auto_BLUE_Back_6 extends OpMode {
                 break;
 
             case 9:
-                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1200 && (timer.milliseconds() - pathChainTimer) <= 3000)){
                     intake.slapArtifact();
                 }
                 if(!follower.isBusy()) {

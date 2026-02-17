@@ -542,7 +542,7 @@ public class Auto_RED_Front_6 extends OpMode {
                 }
                 break;
             case 5:
-                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1500 && (timer.milliseconds() - pathChainTimer) <= 3000)){
+                if(!follower.isBusy() || ((timer.milliseconds() - pathChainTimer) >= 1000 && (timer.milliseconds() - pathChainTimer) <= 3000)){
                     intake.slapArtifact();
                 }
 

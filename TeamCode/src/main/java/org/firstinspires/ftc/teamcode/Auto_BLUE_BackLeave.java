@@ -271,6 +271,7 @@ public class Auto_BLUE_BackLeave extends OpMode {
                     sorter.door("Close");
                     sorter.reset();
                     sorter.update();
+                    shooter.closeBlocker();
 
                     shooter.setVelocity("Idle");
 

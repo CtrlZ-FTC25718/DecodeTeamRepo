@@ -299,6 +299,7 @@ public class Auto_BLUE_Back_9 extends OpMode {
                     sorter.door("Close");
                     sorter.reset();
                     sorter.update();
+                    shooter.closeBlocker();
 
                     shooter.setVelocity("Idle");
 

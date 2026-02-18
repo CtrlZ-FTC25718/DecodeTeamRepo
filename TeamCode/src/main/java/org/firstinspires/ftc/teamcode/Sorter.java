@@ -26,7 +26,7 @@ public class Sorter {
     private final double doorOpenedPos = 0.2;
 
     private final double doorClosedPos = 0.55;
-    private static final double sorterZeroPos = 0.05;//0.0385; // was 0.07
+    private static final double sorterZeroPos = 0.058;//0.0385; // was 0.07
     private double distance;
 
     //Constructor
@@ -55,7 +55,7 @@ public class Sorter {
 
     public void shift(int numberPositions){
         //Update sorterServo Position to reflect shift
-        state.set(0, (double) state.get(0) + .0715 * 3 * numberPositions); // was 0.069
+        state.set(0, (double) state.get(0) + .0715 * numberPositions); // was 0.069
 
         //Initialize temporary storage for shuffling
         String temp = "";

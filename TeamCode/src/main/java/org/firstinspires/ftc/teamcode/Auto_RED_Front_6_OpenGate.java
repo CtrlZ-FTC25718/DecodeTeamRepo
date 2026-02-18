@@ -298,6 +298,7 @@ public class Auto_RED_Front_6_OpenGate extends OpMode {
                     sorter.door("Close");
                     sorter.reset();
                     sorter.update();
+                    shooter.closeBlocker();
 
                     shooter.setVelocity("Idle");
 

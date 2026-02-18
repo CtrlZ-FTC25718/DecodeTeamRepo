@@ -291,6 +291,7 @@ public class Auto_BLUE_Front_6 extends OpMode {
                     sorter.door("Close");
                     sorter.reset();
                     sorter.update();
+                    shooter.closeBlocker();
 
                     shooter.setVelocity("Idle");
 

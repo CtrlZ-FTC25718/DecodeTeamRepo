@@ -145,8 +145,8 @@ private Follower follower;
                             if (true){
 //                            if (shooter.isAtHighVel()) {
 //                                Log.d("Shooter5p1", "Shooter reached high Vel");
-
-                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
+                                if (!sorter.isEmpty()) {
+//                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
                                     sorter.shift(1);
                                     sorter.update();
                                     //Log.d("ShooterShift", "Sorter Has Shifted");
@@ -180,8 +180,8 @@ private Follower follower;
                             if (true){
 //                            if (shooter.isAtLowVel()) {
                                 //Log.d("Shooter5p2", "Shooter reached low Vel");
-
-                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
+                                if (!sorter.isEmpty()){
+                                //if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
                                     sorter.shift(1);
                                     sorter.update();
                                     //Log.d("ShooterShift", "Sorter Has Shifted");
@@ -215,8 +215,8 @@ private Follower follower;
 
                             if (shooter.isAtCustomVel()) {
 //                                Log.d("Shooter5p1", "Shooter reached custom vel");
-
-                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
+                                if (!sorter.isEmpty()) {
+//                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
                                     sorter.shift(1);
                                     sorter.update();
                                     //Log.d("ShooterShift", "Sorter Has Shifted");

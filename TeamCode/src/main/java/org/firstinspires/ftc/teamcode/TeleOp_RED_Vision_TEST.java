@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 import java.util.function.Supplier;
 
 @Configurable
-@TeleOp(name = "RED - Vision - TEST")
+//@TeleOp(name = "RED - Vision - TEST")
 public class TeleOp_RED_Vision_TEST extends OpMode {
 private Follower follower;
     public Pose startingPose;

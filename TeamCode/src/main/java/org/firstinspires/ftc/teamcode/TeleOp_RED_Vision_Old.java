@@ -10,7 +10,6 @@ import com.pedropathing.paths.HeadingInterpolator;
 import com.pedropathing.paths.Path;
 import com.pedropathing.paths.PathChain;
 import com.qualcomm.robotcore.eventloop.opmode.OpMode;
-import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
@@ -18,8 +17,8 @@ import org.firstinspires.ftc.teamcode.pedroPathing.constants.Constants;
 import java.util.function.Supplier;
 
 @Configurable
-@TeleOp(name = "BLUE Vision")
-public class TeleOp_BLUE_Vision extends OpMode {
+//@TeleOp(name = "RED - Vision-Old")
+public class TeleOp_RED_Vision_Old extends OpMode {
 private Follower follower;
     public Pose startingPose;
     private boolean automatedDrive;
@@ -45,35 +44,38 @@ private Follower follower;
     private limelightEx visionDetector;
 
     private double[] visionPosEst;
+
+
     /** This method is call once when init is played, it initializes the follower **/
     @Override
     public void init() {
         // set Team Color to Red or Blue - Should match with the teleOp Name
-        teamColor = "Blue";
+        teamColor = "Red";
         // Set Starting Pose
+        // Start with a default localized pose from camera. This can be reset lateron on a button click
+
         //Limelight Camera
         visionDetector = new limelightEx(hardwareMap);
-        startingPose = new Pose(72,8.5, Math.toRadians(90));; //See ExampleAuto to understand how to use this
-
+//      startingPose = new Pose(72,8.5, Math.toRadians(90));; //See ExampleAuto to understand how to use this
 
         follower = Constants.createFollower(hardwareMap);
         follower.update();
         telemetryM = PanelsTelemetry.INSTANCE.getTelemetry();
-
-
+        
+        
         farShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 25))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(115), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(84, 26))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(70), .8))
                 .build();
 
         closeShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(62, 90))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(135), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(90, 90))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(49), .8))
                 .build();
 
         endgameChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(108, 38))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(180), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(38, 38))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), .8))
                 .build();
 
         intake = new Intake(hardwareMap);
@@ -89,6 +91,7 @@ private Follower follower;
         shootArtifactAtHighSpeed = false;
         shootArtifactAtLowSpeed = false;
         shootArtifactAtCustomSpeed = false;
+        shotCount = 0;
         artifactCountBefore = 0;
         artifactCountAfter = 0;
 
@@ -99,7 +102,6 @@ private Follower follower;
         // Index 3 used for delaying for door opening to shoot artifact
         // Index 4 used for delaying sorter rotation for shooting
         delayTimer = new double[5]; // create 5 delayTimers that can used for various (non-blocking) delays; sets to 0.0s
-
 
     }
 
@@ -114,46 +116,171 @@ private Follower follower;
     }
 
     private void shootArtifact (){
-        double sorterVaneWaitTime;
+        double sorterDoorWaitTime, sorterVaneWaitTime;
         if (shootArtifactAtHighSpeed){
-            sorterVaneWaitTime = 300;
+            sorterDoorWaitTime = 750;
+            sorterVaneWaitTime = 750;
         }
         else {
-            sorterVaneWaitTime = 100;
+            sorterDoorWaitTime = 500;
+            sorterVaneWaitTime = 500;
         }
 
-        if(!sorter.isEmpty()) {
-            if (timerExpired(4, sorterVaneWaitTime)) {
-                if (shootArtifactAtHighSpeed || shootArtifactAtLowSpeed || shootArtifactAtCustomSpeed) {
-                    shooter.openBlocker();
-                    sorter.shift(1);
-                    sorter.update();
-                    sorter.registerShot();
-                    delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
+        if (timerExpired(3,sorterDoorWaitTime)){
+            //Log.d("Shooter1", "Sorter Door Timer Expired");
+
+            if(!sorter.isEmpty()){
+//                Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
+                if  (timerExpired(4, sorterVaneWaitTime)) {
+//                    Log.d("Shooter3", "Sorter Timer Expired");
+
+                    if (sorter.hasDoorOpened()) {
+                        //Log.d("Shooter4", "Sorter Door Is Open");
+
+                        // Long shot
+                        if (shootArtifactAtHighSpeed) {
+
+                            //Log.d("Shooter5", "Long shot active");
+                            if (shooter.isAtHighVel()) {
+//                                Log.d("Shooter5p1", "Shooter reached high Vel");
+
+                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
+                                    sorter.shift(1);
+                                    sorter.update();
+                                    //Log.d("ShooterShift", "Sorter Has Shifted");
+                                }
+                                shooter.openBlocker();
+
+                                stack = sorter.getArtifactStack();
+//                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                sorter.registerShot();
+                                stack = sorter.getArtifactStack();
+//                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+                                shotCount++;
+
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+
+                                delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
+                                //Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
+                            }
+                            else {
+                                //Log.d("Shooter7", "Shooter isAtHighVel is false");
+                            }
+                        }
+
+                        // Close shot
+                        else if (shootArtifactAtLowSpeed) {
+
+                            //Log.d("Shooter5p2", "Close shot active");
+                            if (shooter.isAtLowVel()) {
+                                //Log.d("Shooter5p2", "Shooter reached low Vel");
+
+                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
+                                    sorter.shift(1);
+                                    sorter.update();
+                                    //Log.d("ShooterShift", "Sorter Has Shifted");
+                                }
+                                shooter.openBlocker();
+
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                sorter.registerShot();
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+                                shotCount++;
+
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+
+                                delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
+                                //Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
+                            }
+                            else {
+                                //Log.d("Shooter7", "Shooter isAtLowVel is false");
+                            }
+                        }
+
+                        // Long shot
+                        if (shootArtifactAtCustomSpeed) {
+
+                            //Log.d("Shooter5", "Long shot active");
+
+                            if (shooter.isAtCustomVel()) {
+//                                Log.d("Shooter5p1", "Shooter reached custom vel");
+
+                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
+                                    sorter.shift(1);
+                                    sorter.update();
+                                    //Log.d("ShooterShift", "Sorter Has Shifted");
+                                }
+                                shooter.openBlocker();
+
+                                stack = sorter.getArtifactStack();
+//                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+                                sorter.registerShot();
+                                stack = sorter.getArtifactStack();
+//                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+                                shotCount++;
+
+                                stack = sorter.getArtifactStack();
+                                //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+
+                                delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
+                                //Log.d("Shooter6", "Shot Registered at custom speed: " + shotCount);
+                            }
+                            else {
+                                //Log.d("Shooter7", "Shooter isAtCustomVel is false");
+                            }
+                        }
+                        else {
+                            //Log.d("Shooter11", "shootArtifactAtHighSpeed && shootArtifactAtLowSpeed & shootArtifactAtCustomVel are false");
+                        }
+                    }
+
+
+                    else{
+                        //Log.d("Shooter12", "Door is not open");
+                    }
+                }
+
+
+                else {
+                    //Log.d("Shooter13", "Waiting for delayTimer[4] to expire");
                 }
             }
-        }
-        else {
-            if (timerExpired(4, 1500)){
-                // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
-                // Execute end actions after shooting artifacts
-                sorter.reset();
-                sorter.update();
-                shooter.closeBlocker();
+            else {
+                if (timerExpired(4, 1000)){
+                    // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
+                    // Execute end actions after shooting artifacts
+//                    Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
+                    sorter.door("Close");
+                    sorter.reset();
+                    sorter.update();
 
-                shooter.setVelocity("Idle");
+                    shooter.setVelocity("Idle");
 
-                // Done shooting set shooting states to false
-                if (shootArtifactAtHighSpeed) { shootArtifactAtHighSpeed = false;}
-                if (shootArtifactAtLowSpeed){ shootArtifactAtLowSpeed = false;}
-                if (shootArtifactAtCustomSpeed){ shootArtifactAtCustomSpeed = false;};
+                    // Done shooting set shooting states to false
+                    if (shootArtifactAtHighSpeed) { shootArtifactAtHighSpeed = false;}
+                    if (shootArtifactAtLowSpeed){ shootArtifactAtLowSpeed = false;}
+                    if (shootArtifactAtCustomSpeed){ shootArtifactAtCustomSpeed = false;};
 
-                // Rest all delay timers
-                delayTimer[0] = 0; // Reset Intake Delay Timer
-                delayTimer[1] = 0; // Sorter rotate Delay Timer (for intake)
-                delayTimer[2] = 0; // Ball detect Delay Timer
-                delayTimer[3] = 0; // Reset Shooter Door Delay Timer (not used anymore)
-                delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
+                    shotCount = 0; // Reset Shot counter
+
+                    // Rest all delay timers
+                    delayTimer[0] = 0; // Reset Intake Delay Timer
+                    delayTimer[1] = 0; // Sorter rotate Delay Timer (for intake)
+                    delayTimer[2] = 0; // Ball detect Delay Timer
+                    delayTimer[3] = 0; // Reset Shooter Door Delay Timer
+                    delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
+                }
+
             }
         }
     }
@@ -172,27 +299,45 @@ private Follower follower;
     public void manageSorter(){
         if(sorter.isFull() && delayTimer[0] == 0){
             delayTimer[0] = timer.milliseconds(); // Start a new timer to stop the intake and reject artifacts
+            // startShooter for initial spin up (will reduce velocity Hold time to overcome inertia
             shooter.setVelocity("Low");
         }
 
-        if((timerExpired(2, 325) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
+        if((timerExpired(2, 250) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
+            stack = sorter.getArtifactStack();
+            //Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+            artifactCountBefore = sorter.getArtifactCount();
             sorter.detect(); //Detect potential artifact
+            stack = sorter.getArtifactStack();
+            artifactCountAfter = sorter.getArtifactCount();
+
+            //Log.d("Shifting1", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+            stack = sorter.getArtifactStack();
+            //Log.d("ShootingStackAfterDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
+
             delayTimer[2] = 0;
         }
-        stack = sorter.getArtifactStack();
+
         if(!stack[2].equals("") && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed && !shootArtifactAtCustomSpeed){
             if(!sorter.isFull()){
+
                 if(delayTimer[1] == 0){
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
                 }
-                if(timerExpired(1, 0)){
+                if(timerExpired(1, 1)){
                     sorter.shift(1); //If ball has been taken in & sorter once (used to sort twice)
                     sorter.update();
                     delayTimer[1] = 0;
                     delayTimer[2] = timer.milliseconds();
+                    //Log.d("Shifting2", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
+
                 }
             }
         }
+
     }
 
     public void toggleIntake(){
@@ -234,6 +379,16 @@ private Follower follower;
             //This is how it looks with slowMode on
             // Scale normal driving as a quadratic X^2
             if (!slowMode) {
+
+//                if (rsy > 0){ rsy = -1.5*Math.pow(rsy,2);}
+//                else {rsy = 1.5*Math.pow(rsy,2);}
+//
+//                if (rsx > 0){ rsx = -1.5*Math.pow(rsx,2);}
+//                else {rsx = 1.5*Math.pow(rsx,2);}
+//
+//                if (lsx > 0){ lsx = -1.5*Math.pow(lsx,2);}
+//                else {lsx = 1.5*Math.pow(lsx,2);}
+
                 follower.setTeleOpDrive(
                         -rsy,
                         -rsx,
@@ -249,7 +404,6 @@ private Follower follower;
             );
         }
     }
-
 
     /** This method is called once at the start of the OpMode. **/
     @Override
@@ -269,8 +423,13 @@ private Follower follower;
             gamepad2.rumble(500);
         }
 
+//        sorter.setPosition(0.188);
+//        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
+        sorter.door("Close");
+        sorter.update();
         shooter.closeBlocker();
         intake.resetSlapper();
+
         shooter.setVelocity("Idle");
     }
 
@@ -354,6 +513,10 @@ private Follower follower;
             if(!sorter.isEmpty()){
                 shootArtifactAtHighSpeed = true;
                 shooter.velocityHold("High", .1); // initial spinup
+                shotCount = 0;
+                sorter.door("Open");
+                sorter.update();
+                sorter.wiggleUp();
                 intake.setIntakeState(false);
                 intake.update();
                 shooter.closeBlocker(); // do not shoot until velocity is reached
@@ -370,6 +533,10 @@ private Follower follower;
             if(!sorter.isEmpty()){
                 shootArtifactAtLowSpeed = true;
                 shooter.velocityHold("Low", .1); // initial spin up
+                shotCount = 0;
+                sorter.door("Open");
+                sorter.update();
+                sorter.wiggleUp();
                 intake.setIntakeState(false);
                 intake.update();
 
@@ -386,14 +553,47 @@ private Follower follower;
             //Shoot Artifacts (everything that is in the stack)
             if(!sorter.isEmpty()){
                 shootArtifactAtCustomSpeed = true;
-                // For custom shot (close) calculate ComputeCustomShotParameters
-                customParameters = shooter.computeCustomShotParameters(follower.getPose().getX(), follower.getPose().getY(),teamColor);
-                shooter.updateCustomVelocity(customParameters[0], customParameters[0]); // use same values for front and back
-                shooter.velocityHold("Custom", .1); // inital spinup
-                intake.setIntakeState(false);
-                intake.update();
-                shooter.closeBlocker(); // do not shoot until velocity is reached
-                shooter.setVelocity("Custom");
+
+                if(follower.getPose().getY() <= 48){
+                    // Far shot; Use default position
+                    follower.followPath(farShotPathChain.get(),true);
+                    automatedDrive = true;
+
+                    shooter.velocityHold("High", .1); // inital spinup
+                    shotCount = 0;
+                    sorter.door("Open");
+                    sorter.update();
+                    sorter.wiggleUp();
+                    intake.setIntakeState(false);
+                    intake.update();
+                    shooter.closeBlocker(); // do not shoot until velocity is reached
+                    shooter.setVelocity("High");
+                }
+                else{
+                    // For custom shot (close) calculate ComputeCustomShotParameters
+                    customParameters = shooter.computeCustomShotParameters(follower.getPose().getX(), follower.getPose().getY(),teamColor);
+                    shooter.updateCustomVelocity(customParameters[0], customParameters[0]); // use same values for front and back
+
+                    // Close shot; offset
+                    // Turn robot to calculated heading and turn
+
+                    customShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
+                            .addPath(new Path(new BezierLine(follower::getPose, new Pose(customParameters[2], customParameters[3], customParameters[1])))) // No change in x,y.
+                            .setConstantHeadingInterpolation(Math.toRadians(customParameters[1]))
+                            .build();
+                    follower.followPath(customShotPathChain.get(),true);
+                    automatedDrive = true;
+
+                    shooter.velocityHold("Custom", .1); // inital spinup
+                    shotCount = 0;
+                    sorter.door("Open");
+                    sorter.update();
+                    sorter.wiggleUp();
+                    intake.setIntakeState(false);
+                    intake.update();
+                    shooter.closeBlocker(); // do not shoot until velocity is reached
+                    shooter.setVelocity("Custom");
+                }
 
                 delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
                 delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
@@ -426,14 +626,17 @@ private Follower follower;
         }
 
         if(gamepad2.xWasPressed() || gamepad2.x){
-
+            sorter.door("Close");
+            sorter.update();
         }
 
         if(gamepad2.yWasPressed() || gamepad2.y){
-
+            sorter.door("Open");
+            sorter.update();
         }
 
         if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
+            // Relocalize using Limelight
             visionPosEst = visionDetector.buffered_localize(30);
             if((visionPosEst[0] != 1000) || (visionPosEst[1] != 1000) || (visionPosEst[2] != 1000)){
                 startingPose = new Pose(visionPosEst[0],visionPosEst[1], Math.toRadians(visionPosEst[2]));
@@ -444,6 +647,7 @@ private Follower follower;
                 gamepad1.rumble(500);
                 gamepad2.rumble(500);
             }
+
         }
 
         if((gamepad2.rightBumperWasPressed() || gamepad2.rightBumperWasReleased()) && (gamepad2.leftStickButtonWasPressed() || gamepad2.leftStickButtonWasReleased())){
@@ -467,31 +671,51 @@ private Follower follower;
             follower.followPath(endgameChain.get(), 1, false);
             automatedDrive = true;
         }
-
         if (gamepad2.rightStickButtonWasPressed()){
             intake.slapArtifactWithWait();
         }
+
+
+
+        /* if(gamepad2.rightBumperWasPressed()){
+            if(intake.getPower() == 0){
+                intake.setPower(-1);
+            }
+            else{
+                intake.setPower(0);
+            }
+        }
+        if(gamepad2.leftBumperWasPressed()){
+            if(intake.getPower() == 0){
+                intake.setPower(1);
+            }
+            else{
+                intake.setPower(0);
+            }
+        } */
 
         stack = sorter.getArtifactStack();
 //        telemetry.addData("IsAutomatedDriveMode: ", "" + automatedDrive);
 //        telemetry.addData("SorterFull: ", sorter.isFull());
 
-        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
-        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
+//        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
+//        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
 
 //        telemetry.addData("SorterPos: ", sorter.getPosition());
 
-        telemetry.addData("X", follower.getPose().getX());
-        telemetry.addData("Y", follower.getPose().getY());
-        telemetry.addData("Heading in Degrees", Math.toDegrees(follower.getPose().getHeading()));
+        telemetry.addData("X", Math.round(10.0*follower.getPose().getX())/10.0);
+        telemetry.addData("Y", Math.round(10.0*follower.getPose().getY())/10.0);
+        telemetry.addData("Heading in Degrees", Math.round(10.0*Math.toDegrees(follower.getPose().getHeading()))/10.0);
+
 
         telemetry.addData("CameraX", Math.round(10.0* visionPosEst[0])/10.0 + "");
         telemetry.addData("CameraY", Math.round(10.0*visionPosEst[1])/10.0 + "");
         telemetry.addData("CameraTheta", Math.round(10.0*visionPosEst[2])/10.0 + "");
 
-        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
-        telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);
-        telemetry.addData("Custom Shooting Heading in Degrees", customParameters[1]);
+
+//        telemetry.addLine("--------CUSTOM SHOT PARAMS-----------");
+//        telemetry.addData("Custom Shooter Vel t/s", customParameters[0]);
+//        telemetry.addData("Custom Shooting Heading in Degrees", customParameters[1]);
 
 
     }

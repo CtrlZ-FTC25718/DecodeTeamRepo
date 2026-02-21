@@ -48,7 +48,7 @@ public class Shooter {
         shooterBack.setDirection(DcMotorEx.Direction.FORWARD);
         shooterBack.setMode(DcMotorEx.RunMode.RUN_USING_ENCODER);
         shooterBack.setZeroPowerBehavior(DcMotorEx.ZeroPowerBehavior.FLOAT);
-        shooterFrontPIDF =  new PIDFCoefficients(60, 0, 0, 27);
+        shooterFrontPIDF =  new PIDFCoefficients(120, 0, 0, 31); //60,27
         shooterBackPIDF = shooterFrontPIDF;
         //shooterFrontPIDF = new PIDFCoefficients(50, 0,0, 22.5); // 50, 0, 0, 20.4
         //shooterBackPIDF = new PIDFCoefficients(800, 70, 70, 20);

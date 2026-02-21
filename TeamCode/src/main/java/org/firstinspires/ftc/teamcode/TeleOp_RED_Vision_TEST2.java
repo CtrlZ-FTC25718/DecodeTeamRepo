@@ -92,7 +92,7 @@ private Follower follower;
         shootArtifactAtHighSpeed = false;
         shootArtifactAtLowSpeed = false;
         shootArtifactAtCustomSpeed = false;
-        shotCount = 0;
+//        shotCount = 0;
         artifactCountBefore = 0;
         artifactCountAfter = 0;
 
@@ -137,7 +137,7 @@ private Follower follower;
             }
         }
         else {
-            if (timerExpired(4, 3000)){
+            if (timerExpired(4, 1500)){
                 // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
                 // Execute end actions after shooting artifacts
                 sorter.reset();
@@ -179,15 +179,10 @@ private Follower follower;
         }
 
         if((timerExpired(2, 325) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
-            stack = sorter.getArtifactStack();
-            artifactCountBefore = sorter.getArtifactCount();
             sorter.detect(); //Detect potential artifact
-            stack = sorter.getArtifactStack();
-            artifactCountAfter = sorter.getArtifactCount();
-            stack = sorter.getArtifactStack();
             delayTimer[2] = 0;
         }
-
+        stack = sorter.getArtifactStack();
         if(!stack[2].equals("") && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed && !shootArtifactAtCustomSpeed){
             if(!sorter.isFull()){
                 if(delayTimer[1] == 0){
@@ -242,16 +237,6 @@ private Follower follower;
             //This is how it looks with slowMode on
             // Scale normal driving as a quadratic X^2
             if (!slowMode) {
-
-//                if (rsy > 0){ rsy = -1.5*Math.pow(rsy,2);}
-//                else {rsy = 1.5*Math.pow(rsy,2);}
-//
-//                if (rsx > 0){ rsx = -1.5*Math.pow(rsx,2);}
-//                else {rsx = 1.5*Math.pow(rsx,2);}
-//
-//                if (lsx > 0){ lsx = -1.5*Math.pow(lsx,2);}
-//                else {lsx = 1.5*Math.pow(lsx,2);}
-
                 follower.setTeleOpDrive(
                         -rsy,
                         -rsx,
@@ -286,10 +271,6 @@ private Follower follower;
             gamepad2.rumble(500);
         }
 
-//        sorter.setPosition(0.188);
-//        sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State for Preloads
-        sorter.door("Close");
-        sorter.update();
         shooter.closeBlocker();
         intake.resetSlapper();
 
@@ -376,10 +357,6 @@ private Follower follower;
             if(!sorter.isEmpty()){
                 shootArtifactAtHighSpeed = true;
                 shooter.velocityHold("High", .1); // initial spinup
-                shotCount = 0;
-                sorter.door("Open");
-                sorter.update();
-                sorter.wiggleUp();
                 intake.setIntakeState(false);
                 intake.update();
                 shooter.closeBlocker(); // do not shoot until velocity is reached
@@ -396,10 +373,6 @@ private Follower follower;
             if(!sorter.isEmpty()){
                 shootArtifactAtLowSpeed = true;
                 shooter.velocityHold("Low", .1); // initial spin up
-                shotCount = 0;
-                sorter.door("Open");
-                sorter.update();
-                sorter.wiggleUp();
                 intake.setIntakeState(false);
                 intake.update();
 
@@ -416,47 +389,14 @@ private Follower follower;
             //Shoot Artifacts (everything that is in the stack)
             if(!sorter.isEmpty()){
                 shootArtifactAtCustomSpeed = true;
-
-                if(follower.getPose().getY() <= 48){
-                    // Far shot; Use default position
-                    follower.followPath(farShotPathChain.get(),true);
-                    automatedDrive = true;
-
-                    shooter.velocityHold("High", .1); // inital spinup
-                    shotCount = 0;
-                    sorter.door("Open");
-                    sorter.update();
-                    sorter.wiggleUp();
-                    intake.setIntakeState(false);
-                    intake.update();
-                    shooter.closeBlocker(); // do not shoot until velocity is reached
-                    shooter.setVelocity("High");
-                }
-                else{
-                    // For custom shot (close) calculate ComputeCustomShotParameters
-                    customParameters = shooter.computeCustomShotParameters(follower.getPose().getX(), follower.getPose().getY(),teamColor);
-                    shooter.updateCustomVelocity(customParameters[0], customParameters[0]); // use same values for front and back
-
-                    // Close shot; offset
-                    // Turn robot to calculated heading and turn
-
-                    customShotPathChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                            .addPath(new Path(new BezierLine(follower::getPose, new Pose(customParameters[2], customParameters[3], customParameters[1])))) // No change in x,y.
-                            .setConstantHeadingInterpolation(Math.toRadians(customParameters[1]))
-                            .build();
-                    follower.followPath(customShotPathChain.get(),true);
-                    automatedDrive = true;
-
-                    shooter.velocityHold("Custom", .1); // inital spinup
-                    shotCount = 0;
-                    sorter.door("Open");
-                    sorter.update();
-                    sorter.wiggleUp();
-                    intake.setIntakeState(false);
-                    intake.update();
-                    shooter.closeBlocker(); // do not shoot until velocity is reached
-                    shooter.setVelocity("Custom");
-                }
+                // For custom shot (close) calculate ComputeCustomShotParameters
+                customParameters = shooter.computeCustomShotParameters(follower.getPose().getX(), follower.getPose().getY(),teamColor);
+                shooter.updateCustomVelocity(customParameters[0], customParameters[0]); // use same values for front and back
+                shooter.velocityHold("Custom", .1); // inital spinup
+                intake.setIntakeState(false);
+                intake.update();
+                shooter.closeBlocker(); // do not shoot until velocity is reached
+                shooter.setVelocity("Custom");
 
                 delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
                 delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
@@ -489,13 +429,11 @@ private Follower follower;
         }
 
         if(gamepad2.xWasPressed() || gamepad2.x){
-            sorter.door("Close");
-            sorter.update();
+
         }
 
         if(gamepad2.yWasPressed() || gamepad2.y){
-            sorter.door("Open");
-            sorter.update();
+
         }
 
         if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
@@ -538,31 +476,12 @@ private Follower follower;
             intake.slapArtifactWithWait();
         }
 
-
-
-        /* if(gamepad2.rightBumperWasPressed()){
-            if(intake.getPower() == 0){
-                intake.setPower(-1);
-            }
-            else{
-                intake.setPower(0);
-            }
-        }
-        if(gamepad2.leftBumperWasPressed()){
-            if(intake.getPower() == 0){
-                intake.setPower(1);
-            }
-            else{
-                intake.setPower(0);
-            }
-        } */
-
         stack = sorter.getArtifactStack();
 //        telemetry.addData("IsAutomatedDriveMode: ", "" + automatedDrive);
 //        telemetry.addData("SorterFull: ", sorter.isFull());
 
-//        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
-//        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
+        telemetry.addData("ShooterFrontVel t/s: ", shooter.getShooterFrontVel());
+        telemetry.addData("ShooterBackVel t/s: ", shooter.getShooterBackVel());
 
 //        telemetry.addData("SorterPos: ", sorter.getPosition());
 

@@ -228,14 +228,20 @@ private Follower follower;
 
             double rsx, rsy, lsx;
             if(Math.abs(gamepad1.right_stick_x) > 0.5) {
-                rsx = gamepad1.right_stick_x;
+                rsx = 2*gamepad1.right_stick_x;
             }
             else {rsx = 0.0;}
             rsy = gamepad1.right_stick_y;
             lsx = gamepad1.left_stick_x;
 
-            //This is how it looks with slowMode on
-            // Scale normal driving as a quadratic X^2
+            // Apply quadratic function to drive and turn
+            // Do not apply cubic function to strafe
+            if (rsy > 0){ rsy = 2*Math.pow(rsy,3);}
+            else {rsy = 2*Math.pow(rsy,3);}
+
+            if (lsx > 0){ lsx = 2*Math.pow(lsx,3);}
+            else {lsx = 2*Math.pow(lsx,3);}
+
             if (!slowMode) {
                 follower.setTeleOpDrive(
                         -rsy,
@@ -466,6 +472,7 @@ private Follower follower;
         if(gamepad2.left_trigger != 0){
             sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State for Preloads
             sorter.update();
+            shooter.closeBlocker();
         }
 
         if(gamepad2.right_trigger != 0){

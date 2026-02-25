@@ -157,170 +157,46 @@ public class Auto_RED_Back_9 extends OpMode {
     }
 
     private void shootArtifact (){
-        Log.d("Shooter0","Inside ShootArtifact");
-        isShooting = true;
-        if (timerExpired(3,750)){
-            Log.d("Shooter1", "Sorter Door Timer Expired");
+        double sorterVaneWaitTime;
+        if (shootArtifactAtHighSpeed){
+            sorterVaneWaitTime = 300;
+        }
+        else {
+            sorterVaneWaitTime = 100;
+        }
 
-            if(!sorter.isEmpty()){
-                Log.d("Shooter2", "Sorter Not empty, waiting for timer 4 to expire");
-                if  (timerExpired(4, 750)) {
-                    Log.d("Shooter3", "Sorter Timer Expired");
-
-                    if (sorter.hasDoorOpened()) {
-                        Log.d("Shooter4", "Sorter Door Is Open");
-
-                        // Long shot
-                        if (shootArtifactAtHighSpeed) {
-
-                            //Log.d("Shooter5", "Long shot active");
-                            if (shooter.isAtHighVel()) {
-//                                Log.d("Shooter5p1", "Shooter reached high Vel");
-
-                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
-                                    sorter.shift(1);
-                                    sorter.update();
-                                    sorter.wiggleUp(); // Added only for Auto
-                                    //Log.d("ShooterShift", "Sorter Has Shifted");
-                                }
-                                shooter.openBlocker();
-
-                                stack = sorter.getArtifactStack();
-//                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-                                sorter.registerShot();
-                                stack = sorter.getArtifactStack();
-//                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-                                shotCount++;
-
-                                stack = sorter.getArtifactStack();
-                                //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-
-                                delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
-                                //Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
-                            }
-                            else {
-                                //Log.d("Shooter7", "Shooter isAtHighVel is false");
-                            }
-                        }
-
-                        // Close shot
-                        else if (shootArtifactAtLowSpeed) {
-
-                            Log.d("Shooter5p2", "Close shot active");
-                            if (shooter.isAtLowVel()) {
-                                Log.d("Shooter5p2", "Shooter reached low Vel");
-
-                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
-                                    sorter.shift(1);
-                                    sorter.update();
-                                    Log.d("ShooterShift", "Sorter Has Shifted");
-                                }
-                                shooter.openBlocker();
-
-                                stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-                                sorter.registerShot();
-                                stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-                                shotCount++;
-
-                                stack = sorter.getArtifactStack();
-                                Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-
-                                delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
-                                Log.d("Shooter6", "Shot Registered at high speed: " + shotCount);
-                            }
-                            else {
-                                Log.d("Shooter7", "Shooter isAtLowVel is false");
-                            }
-                        }
-
-                        // Long shot
-                        if (shootArtifactAtCustomSpeed) {
-
-                            //Log.d("Shooter5", "Long shot active");
-
-                            if (shooter.isAtCustomVel()) {
-                                //Log.d("Shooter5p1", "Shooter reached custom vel");
-
-                                if (!sorter.isEmpty() && shotCount > 1) { //First artifact is already in the shooter when the door opened
-                                    sorter.shift(1);
-                                    sorter.update();
-                                    //Log.d("ShooterShift", "Sorter Has Shifted");
-                                }
-                                shooter.openBlocker();
-
-                                stack = sorter.getArtifactStack();
-//                                Log.d("ShootingStackBefore", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-                                sorter.registerShot();
-                                stack = sorter.getArtifactStack();
-//                                Log.d("ShootingStackAfter", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-                                shotCount++;
-
-                                stack = sorter.getArtifactStack();
-                                //Log.d("ShootingStackAfterShift", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-
-                                delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
-                                //Log.d("Shooter6", "Shot Registered at custom speed: " + shotCount);
-                            }
-                            else {
-                                //Log.d("Shooter7", "Shooter isAtCustomVel is false");
-                            }
-                        }
-                        else {
-                            //Log.d("Shooter11", "shootArtifactAtHighSpeed && shootArtifactAtLowSpeed & shootArtifactAtCustomVel are false");
-                        }
-                    }
-
-
-                    else{
-                        //Log.d("Shooter12", "Door is not open");
-                    }
-                }
-
-
-                else {
-                    //Log.d("Shooter13", "Waiting for delayTimer[4] to expire");
+        if(!sorter.isEmpty()) {
+            if (timerExpired(4, sorterVaneWaitTime)) {
+                if (shootArtifactAtHighSpeed || shootArtifactAtLowSpeed || shootArtifactAtCustomSpeed) {
+                    shooter.openBlocker();
+                    sorter.shift(1);
+                    sorter.update();
+                    sorter.registerShot();
+                    delayTimer[4] = timer.milliseconds(); // Rest for delaying sorter next round
                 }
             }
-            else {
-                if (timerExpired(4, 1000)){
-                    // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
-                    // Execute end actions after shooting artifacts
-//                    Log.d("Shooter14", "Sorter Empty End Shooting and Reset Timers");
-                    sorter.door("Close");
-                    sorter.reset();
-                    sorter.update();
-                    shooter.closeBlocker();
+        }
+        else {
+            if (timerExpired(4, 1500)){
+                // Sorter is empty; But will execute until shootArtifactAtHighSpeed is false
+                // Execute end actions after shooting artifacts
+                sorter.reset();
+                sorter.update();
+                shooter.closeBlocker();
 
-                    shooter.setVelocity("Idle");
+                shooter.setVelocity("Idle");
 
-                    // Done shooting set shooting states to false
-                    if (shootArtifactAtHighSpeed) { shootArtifactAtHighSpeed = false;}
-                    if (shootArtifactAtLowSpeed){ shootArtifactAtLowSpeed = false;}
-                    if (shootArtifactAtCustomSpeed){ shootArtifactAtCustomSpeed = false;}
-                    if (isShooting) { isShooting = false;}
+                // Done shooting set shooting states to false
+                if (shootArtifactAtHighSpeed) { shootArtifactAtHighSpeed = false;}
+                if (shootArtifactAtLowSpeed){ shootArtifactAtLowSpeed = false;}
+                if (shootArtifactAtCustomSpeed){ shootArtifactAtCustomSpeed = false;};
 
-                    shotCount = 0; // Reset Shot counter
-
-//                    pathState++; //Move on to next autonomous step
-
-                    // Rest all delay timers
-                    delayTimer[0] = 0; // Reset Intake Delay Timer
-                    delayTimer[1] = 0; // Sorter rotate Delay Timer (for intake)
-                    delayTimer[2] = 0; // Ball detect Delay Timer
-                    delayTimer[3] = 0; // Reset Shooter Door Delay Timer
-                    delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
-
-
-                }
-
+                // Rest all delay timers
+                delayTimer[0] = 0; // Reset Intake Delay Timer
+                delayTimer[1] = 0; // Sorter rotate Delay Timer (for intake)
+                delayTimer[2] = 0; // Ball detect Delay Timer
+                delayTimer[3] = 0; // Reset Shooter Door Delay Timer (not used anymore)
+                delayTimer[4] = 0; // Sorter rotate Delay Timer (for shooting)
             }
         }
     }
@@ -339,43 +215,27 @@ public class Auto_RED_Back_9 extends OpMode {
     public void manageSorter(){
         if(sorter.isFull() && delayTimer[0] == 0){
             delayTimer[0] = timer.milliseconds(); // Start a new timer to stop the intake and reject artifacts
-            // startShooter for initial spin up (will reduce velocity Hold time to overcome inertia
             shooter.setVelocity("Low");
         }
 
-        if((timerExpired(2, 500) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){ //
-            stack = sorter.getArtifactStack();
-            //Log.d("ShootingStackBeforeDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
+        if((timerExpired(2, 325) || delayTimer[2] == 0) && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed){
             sorter.detect(); //Detect potential artifact
-            stack = sorter.getArtifactStack();
-            //Log.d("Shifting1", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-            stack = sorter.getArtifactStack();
-            //Log.d("ShootingStackAfterDetect", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
-
-
             delayTimer[2] = 0;
         }
-
+        stack = sorter.getArtifactStack();
         if(!stack[2].equals("") && !shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed && !shootArtifactAtCustomSpeed){
             if(!sorter.isFull()){
-
                 if(delayTimer[1] == 0){
                     delayTimer[1] = timer.milliseconds(); // Start a new timer to wait to rotate the sorter
-                    toggleIntake();
                 }
-                if(timerExpired(1, 1)){
-                    toggleIntake();
-                    sorter.shift(1); //If ball has been taken in & sorter once, used to sort twice
+                if(timerExpired(1, 0)){
+                    sorter.shift(1); //If ball has been taken in & sorter once (used to sort twice)
                     sorter.update();
                     delayTimer[1] = 0;
                     delayTimer[2] = timer.milliseconds();
-                    //Log.d("Shifting2", "" + stack[0] + ", " + stack[1] + ", " + stack[2]);
                 }
             }
         }
-
     }
 
     public void toggleIntake(){
@@ -410,12 +270,6 @@ public class Auto_RED_Back_9 extends OpMode {
             follower.followPath(customShotPathChain.get(),true);
 
             shooter.velocityHold("Custom", .1); // inital spinup
-            shotCount = 0;
-            sorter.door("Open");
-            sorter.update();
-            sorter.wiggleUp();
-//            intake.setIntakeState(false);
-//            intake.update();
             shooter.closeBlocker(); // do not shoot until velocity is reached
             shooter.setVelocity("Custom");
 
@@ -430,10 +284,6 @@ public class Auto_RED_Back_9 extends OpMode {
         if(!sorter.isEmpty()){
             shootArtifactAtHighSpeed = true;
             shooter.velocityHold("High", .1); // initial spinup
-            shotCount = 0;
-            sorter.door("Open");
-            sorter.update();
-            sorter.wiggleUp();
             intake.setIntakeState(false);
             intake.update();
             shooter.closeBlocker(); // do not shoot until velocity is reached
@@ -449,16 +299,8 @@ public class Auto_RED_Back_9 extends OpMode {
         if(!sorter.isEmpty()){
             shootArtifactAtLowSpeed = true;
             shooter.velocityHold("Low", .1); // initial spin up
-            shotCount = 0;
-            sorter.door("Open");
-            sorter.update();
-            sorter.wiggleUp();
-            //intake.setIntakeState(false);
-            //intake.update();
-
             shooter.closeBlocker(); // do not shoot until velocity is reached
             shooter.setVelocity("Low");
-
             delayTimer[3] = timer.milliseconds(); // Set Door Delay Timer for shooting
             delayTimer[4] = timer.milliseconds(); // Set Sorter Delay Timer for Shooting
         }

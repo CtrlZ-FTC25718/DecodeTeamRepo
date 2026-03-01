@@ -53,9 +53,9 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
     @Override
     public void init() {
         // set Team Color to Red or Blue - Should match with the teleOp Name
-        teamColor = "Red";
+        teamColor = "Blue";
         // Set Starting Pose
-        startingPose= new Pose(122,124, Math.toRadians(45));;//startingPose= new Pose(111.5,135, Math.toRadians(-90)); //See ExampleAuto to understand how to use this
+        startingPose= new Pose(22,124, Math.toRadians(135));; //See ExampleAuto to understand how to use this
 //        startingPose= new Pose(124,124, Math.toRadians(45));;
 
         follower = Constants.createFollower(hardwareMap);
@@ -70,6 +70,8 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
 
         timer = new ElapsedTime();
         sorter.reset(); //Reset sorter to SorterZeroPos
+//        sorter.shift(0);
+        sorter.door("Close");
         sorter.update();
 
         sorter.initializeIndicatorColor();
@@ -99,64 +101,56 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
 
         // Autonomous Path Construction
         closeShotPoint = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 96))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(50), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(48, 96))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(138), .8))
                 .build();
 
         firstCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(94, 84))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
-                .build();
-
-        firstCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(129, 84))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
-                .build();
-
-        secondCollection = new Path(
-                new BezierCurve(
-                        follower::getPose,
-                        new Pose(86, 59, 45),
-                        new Pose(90, 59,0),
-                        new Pose(100, 59, 0),
-                        new Pose(144, 59, 0)
-                )
-        );
-        secondCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(94, 59))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
-                .build();
-        secondCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(136, 59))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
-                .build();
-
-        endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(115, 72))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(48, 89))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
                 .build();
 
-        gateCollectionChain0 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(110, 63))))
+        firstCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(17, 89))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .build();
+
+        secondCollectionChain_0 = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(48, 64))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .build();
+        secondCollectionChain_1 = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(8, 63))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .build();
+
+        closeShotFinal = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(46, 67))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(180), .8))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(60, 91))))
+                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(138), .8))
+                .build();
+
+        endingChain = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(35, 72))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(132, 72))))
+                .build();
+
+        gateCollectionChain0 = () -> follower.pathBuilder() //Lazy Curve Generation
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(34, 63))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(180)))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(12, 75))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(-90)))
                 .build();
 
         gateCollectionChain1 = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(112, 50))))
-                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(-45)))
-                .addPath(new Path(new BezierLine(follower::getPose, new Pose(132, 46))))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(32, 50))))
+                .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(135)))
+                .addPath(new Path(new BezierLine(follower::getPose, new Pose(12, 46))))
                 .setHeadingInterpolation(HeadingInterpolator.constant(Math.toRadians(0)))
                 .build();
-        closeShotFinal = () -> follower.pathBuilder() //Lazy Curve Generation
-                .addPath(new Path(new BezierCurve(follower::getPose, new Pose(104, 67))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(0), .8))
-                .addPath(new Path(new BezierCurve(follower::getPose, new Pose(85, 95))))
-                .setHeadingInterpolation(HeadingInterpolator.linearFromPoint(follower::getHeading, Math.toRadians(51), .8))
-                .build();
 
-//        firstCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation
+//      firstCollectionChain = () -> follower.pathBuilder() //Lazy Curve Generation
 //                .addPath(new Path(new BezierLine(follower::getPose, new Pose(96, 36))))
 //                .addPath(new Path(new BezierLine(follower::getPose, new Pose(110, 36))))
 //                .addPath(new Path(new BezierLine(follower::getPose, new Pose(115, 36))))
@@ -184,7 +178,7 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
             sorterVaneWaitTime = 300;
         }
         else {
-            sorterVaneWaitTime = 100;
+            sorterVaneWaitTime = 500;
         }
 
         if(!sorter.isEmpty()) {
@@ -398,7 +392,7 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
 
             case 3:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 4000){
-                    follower.followPath(secondCollectionChain_1.get(), 1, true); // 0.45
+                    follower.followPath(secondCollectionChain_1.get(), 0.8, true); // 0.45
                     pathState = 4;
                     pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
@@ -407,7 +401,7 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
 
             case 4:
                 if(!follower.isBusy()) {
-                    follower.followPath(gateCollectionChain0.get(), true);
+                    follower.followPath(gateCollectionChain0.get(), 0.8, true);
                     pathState = 5;
                     pathChainTimer = timer.milliseconds();
                 }
@@ -475,7 +469,7 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
 
             case 10:
                 if(!follower.isBusy() || (timer.milliseconds() - pathChainTimer) >= 3000){
-                    follower.followPath(firstCollectionChain_1.get(), 1, true); // 0.45
+                    follower.followPath(firstCollectionChain_1.get(), 0.8, true); // 0.45
                     pathState = 11;
                     pathChainTimer = timer.milliseconds();
                     delayTimer[5] = timer.milliseconds();
@@ -516,7 +510,7 @@ public class Auto_BLUE_Front_9_OpenGate extends OpMode {
 
             case 14:
                 if(!follower.isBusy()) {
-                    follower.followPath(endingChain.get(), 1.0, true);
+                    follower.followPath(endingChain.get(), 0.9, true);
 //                    Log.d("StateReached: ", "State 7");
                     pathState = -1;
                     delayTimer[5] = timer.milliseconds();

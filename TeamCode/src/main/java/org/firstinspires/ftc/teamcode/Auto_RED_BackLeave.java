@@ -133,7 +133,7 @@ public class Auto_RED_BackLeave extends OpMode {
     private void shootArtifact (){
         double sorterVaneWaitTime;
         if (shootArtifactAtHighSpeed){
-            sorterVaneWaitTime = 300;
+            sorterVaneWaitTime = 600;
         }
         else {
             sorterVaneWaitTime = 100;

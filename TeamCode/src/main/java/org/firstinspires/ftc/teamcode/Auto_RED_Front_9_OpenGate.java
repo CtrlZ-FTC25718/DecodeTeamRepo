@@ -184,7 +184,7 @@ public class Auto_RED_Front_9_OpenGate extends OpMode {
             sorterVaneWaitTime = 300;
         }
         else {
-            sorterVaneWaitTime = 100;
+            sorterVaneWaitTime = 500;
         }
 
         if(!sorter.isEmpty()) {

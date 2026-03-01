@@ -157,7 +157,7 @@ public class Auto_RED_Front_6 extends OpMode {
             sorterVaneWaitTime = 300;
         }
         else {
-            sorterVaneWaitTime = 100;
+            sorterVaneWaitTime = 500;
         }
 
         if(!sorter.isEmpty()) {

@@ -232,12 +232,12 @@ private Follower follower;
             lsx = gamepad1.left_stick_x;
 
             // Apply quadratic function to drive and turn
-            // Do not apply cubic function to strafe
-            if (rsy > 0){ rsy = 2*Math.pow(rsy,3);}
-            else {rsy = 2*Math.pow(rsy,3);}
+            // Do not apply quadratic function to strafe
+            if (rsy > 0){ rsy = 2*Math.pow(rsy,2);}
+            else {rsy = -2*Math.pow(rsy,2);}
 
-            if (lsx > 0){ lsx = 2*Math.pow(lsx,3);}
-            else {lsx = 2*Math.pow(lsx,3);}
+            if (lsx > 0){ lsx = 2*Math.pow(lsx,2);}
+            else {lsx = -2*Math.pow(lsx,2);}
 
             if (!slowMode) {
                 follower.setTeleOpDrive(

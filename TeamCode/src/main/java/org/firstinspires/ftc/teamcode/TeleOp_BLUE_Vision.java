@@ -431,12 +431,22 @@ private Follower follower;
             shooter.closeBlocker();
         }
 
-        if(gamepad2.xWasPressed() || gamepad2.x){
-
+        if(gamepad2.xWasPressed()){
+            shooter.setPower(-0.25,-0.25);
         }
 
-        if(gamepad2.yWasPressed() || gamepad2.y){
+        if(gamepad2.xWasReleased()){
+            shooter.closeBlocker();
+            shooter.setPower(0,0);
+        }
 
+
+        if(gamepad2.yWasPressed() || gamepad2.y){
+            if(!shootArtifactAtHighSpeed && !shootArtifactAtLowSpeed && !shootArtifactAtCustomSpeed) {
+                sorter.setArtifactStack(new String[]{"", "", ""}); //Set Sorter State to empty
+                sorter.update();
+                shooter.closeBlocker();
+            }
         }
 
         if(gamepad2.guideWasPressed() || gamepad2.guideWasReleased()){
@@ -465,9 +475,12 @@ private Follower follower;
         }
 
         if(gamepad2.left_trigger != 0){
-            sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State for Preloads
+            if(!shootArtifactAtCustomSpeed && !shootArtifactAtLowSpeed && !shootArtifactAtHighSpeed) {
+            sorter.setArtifactStack(new String[]{"Ball", "Ball", "Ball"}); //Set Sorter State to full
             sorter.update();
             shooter.closeBlocker();
+            shooter.setVelocity("Low");
+            }
         }
 
         if(gamepad2.right_trigger != 0){
